@@ -85,16 +85,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             </Link>
           </div>
           <nav className="flex items-center gap-2 overflow-x-auto">
-            <Link to="/" className={navClass('/')}>
+            <Link to="/" className={`${navClass('/')} hidden md:flex`}>
               لوحة المهام
             </Link>
-            <Link to="/clients" className={navClass('/clients')}>
+            <Link to="/clients" className={`${navClass('/clients')} hidden md:flex`}>
               العملاء
             </Link>
-             <Link to="/products" className={navClass('/products')}>
+             <Link to="/products" className={`${navClass('/products')} hidden md:flex`}>
               الأصناف
             </Link>
-            <Link to="/new" className={navClass('/new')}>
+            <Link to="/new" className={`${navClass('/new')} hidden md:flex`}>
               مهمة جديدة
             </Link>
             
@@ -145,6 +145,33 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                     {/* Menu Items */}
                     <div className="py-2">
+                      {/* Mobile Only Links */}
+                      <div className="md:hidden">
+                        <Link
+                          to="/clients"
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors group"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                            <i className="fa-solid fa-user-tie text-sm"></i>
+                          </div>
+                          <span className="font-medium">العملاء</span>
+                        </Link>
+                        
+                        <Link
+                          to="/products"
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors group"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                            <i className="fa-solid fa-box text-sm"></i>
+                          </div>
+                          <span className="font-medium">الأصناف</span>
+                        </Link>
+                        
+                        <div className="h-px bg-slate-100 my-2 mx-3"></div>
+                      </div>
+                      
                       {user.role === 'admin' && (
                         <>
                           <Link

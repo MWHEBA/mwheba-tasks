@@ -1,7 +1,3 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 # MWHEBA Tasks - نظام إدارة المهام
 
 نظام إدارة مهام متكامل مصمم خصيصاً لمؤسسة موهبة للحلول الدعائية (MWHEBA Agency)، مبني بتقنيات حديثة لتوفير تجربة سلسة وفعالة في إدارة المشاريع والمطبوعات.
@@ -172,9 +168,18 @@ python manage.py collectstatic  # جمع الملفات الثابتة
 ### للنشر في الإنتاج
 
 راجع الأدلة التفصيلية:
-- **Backend**: [backend/README.md](backend/README.md) و [backend/QUICKSTART.md](backend/QUICKSTART.md)
-- **Frontend**: [FRONTEND_DEPLOYMENT.md](FRONTEND_DEPLOYMENT.md)
-- **الاختبار**: [PRODUCTION_TESTING.md](PRODUCTION_TESTING.md)
+- **دليل النشر**: [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) - دليل مبسط وسريع
+- **Backend**: [backend/README.md](backend/README.md) - دليل شامل للـ Backend
+
+## 📚 الوثائق
+
+للحصول على معلومات تفصيلية، راجع:
+- **[دليل الوثائق](docs/README.md)** - فهرس شامل لجميع الوثائق
+- **[دليل النشر](docs/DEPLOYMENT_GUIDE.md)** - نشر التحديثات
+- **[دليل الإشعارات](docs/NOTIFICATIONS_GUIDE.md)** - نظام الإشعارات الذكي
+- **[Backend README](backend/README.md)** - دليل Backend الشامل
+
+---
 
 ## 📖 دليل الاستخدام
 

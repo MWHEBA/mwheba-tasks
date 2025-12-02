@@ -111,7 +111,7 @@ class UserViewSet(viewsets.ModelViewSet):
     - DELETE /api/users/{id}/ - Delete user (admin only)
     - POST /api/users/{id}/toggle_active/ - Toggle user active status (admin only)
     """
-    queryset = User.objects.all().select_related('profile').order_by('-date_joined')
+    queryset = User.objects.filter(is_active=True).select_related('profile').order_by('-date_joined')
     permission_classes = [IsAdminOrReadOnly]
     
     def get_serializer_class(self):

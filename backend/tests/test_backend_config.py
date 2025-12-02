@@ -15,59 +15,6 @@ import logging
 
 
 # ============================================================================
-# CORS Configuration Tests
-# ============================================================================
-
-class CORSConfigurationTests(TestCase):
-    """Test CORS configuration settings"""
-    
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.middleware = CorsMiddleware(lambda request: HttpResponse())
-    
-    def test_cors_allowed_origins_configured(self):
-        """Test that CORS_ALLOWED_ORIGINS is properly configured"""
-        from django.conf import settings
-        
-        self.assertTrue(hasattr(settings, 'CORS_ALLOWED_ORIGINS'))
-        self.assertIsInstance(settings.CORS_ALLOWED_ORIGINS, list)
-        self.assertGreater(len(settings.CORS_ALLOWED_ORIGINS), 0)
-    
-    def test_cors_allow_credentials_enabled(self):
-        """Test that CORS_ALLOW_CREDENTIALS is set to True"""
-        from django.conf import settings
-        self.assertTrue(settings.CORS_ALLOW_CREDENTIALS)
-    
-    def test_cors_allow_all_origins_disabled(self):
-        """Test that CORS_ALLOW_ALL_ORIGINS is disabled for security"""
-        from django.conf import settings
-        cors_allow_all = getattr(settings, 'CORS_ALLOW_ALL_ORIGINS', False)
-        self.assertFalse(cors_allow_all)
-    
-    def test_cors_allowed_methods_configured(self):
-        """Test that CORS_ALLOW_METHODS includes necessary HTTP methods"""
-        from django.conf import settings
-        
-        self.assertTrue(hasattr(settings, 'CORS_ALLOW_METHODS'))
-        allowed_methods = settings.CORS_ALLOW_METHODS
-        
-        required_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-        for method in required_methods:
-            self.assertIn(method, allowed_methods)
-    
-    def test_cors_middleware_in_middleware_stack(self):
-        """Test that CorsMiddleware is properly positioned in MIDDLEWARE"""
-        from django.conf import settings
-        
-        self.assertIn('corsheaders.middleware.CorsMiddleware', settings.MIDDLEWARE)
-        
-        cors_index = settings.MIDDLEWARE.index('corsheaders.middleware.CorsMiddleware')
-        common_index = settings.MIDDLEWARE.index('django.middleware.common.CommonMiddleware')
-        self.assertLess(cors_index, common_index, 
-                       "CorsMiddleware should be before CommonMiddleware")
-
-
-# ============================================================================
 # Environment Configuration Tests
 # ============================================================================
 
@@ -159,3 +106,124 @@ class TestSensitiveDataFilter:
         assert result is True
         assert "secret123" not in record.msg
         assert "[REDACTED]" in record.msg
+
+
+
+# ============================================================================
+# CORS Configuration Tests (from test_cors.py)
+# ============================================================================
+
+class CORSConfigurationTests(TestCase):
+    """Test CORS configuration settings"""
+    
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.middleware = CorsMiddleware(lambda request: HttpResponse())
+    
+    def test_cors_allowed_origins_configured(self):
+        """Test that CORS_ALLOWED_ORIGINS is properly configured"""
+        from django.conf import settings
+        
+        self.assertTrue(hasattr(settings, 'CORS_ALLOWED_ORIGINS'))
+        self.assertIsInstance(settings.CORS_ALLOWED_ORIGINS, list)
+        self.assertGreater(len(settings.CORS_ALLOWED_ORIGINS), 0)
+    
+    def test_cors_allow_credentials_enabled(self):
+        """Test that CORS_ALLOW_CREDENTIALS is set to True"""
+        from django.conf import settings
+        self.assertTrue(settings.CORS_ALLOW_CREDENTIALS)
+    
+    def test_cors_allow_all_origins_disabled(self):
+        """Test that CORS_ALLOW_ALL_ORIGINS is disabled for security"""
+        from django.conf import settings
+        cors_allow_all = getattr(settings, 'CORS_ALLOW_ALL_ORIGINS', False)
+        self.assertFalse(cors_allow_all)
+    
+    def test_cors_allowed_methods_configured(self):
+        """Test that CORS_ALLOW_METHODS includes necessary HTTP methods"""
+        from django.conf import settings
+        
+        self.assertTrue(hasattr(settings, 'CORS_ALLOW_METHODS'))
+        allowed_methods = settings.CORS_ALLOW_METHODS
+        
+        required_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+        for method in required_methods:
+            self.assertIn(method, allowed_methods)
+    
+    def test_cors_allowed_headers_configured(self):
+        """Test that CORS_ALLOW_HEADERS includes necessary headers"""
+        from django.conf import settings
+        
+        self.assertTrue(hasattr(settings, 'CORS_ALLOW_HEADERS'))
+        allowed_headers = settings.CORS_ALLOW_HEADERS
+        
+        required_headers = ['authorization', 'content-type', 'x-csrftoken']
+        for header in required_headers:
+            self.assertIn(header, allowed_headers)
+    
+    def test_cors_middleware_in_middleware_stack(self):
+        """Test that CorsMiddleware is properly positioned in MIDDLEWARE"""
+        from django.conf import settings
+        
+        self.assertIn('corsheaders.middleware.CorsMiddleware', settings.MIDDLEWARE)
+        
+        cors_index = settings.MIDDLEWARE.index('corsheaders.middleware.CorsMiddleware')
+        common_index = settings.MIDDLEWARE.index('django.middleware.common.CommonMiddleware')
+        self.assertLess(cors_index, common_index, 
+                       "CorsMiddleware should be before CommonMiddleware")
+    
+    @override_settings(
+        CORS_ALLOWED_ORIGINS=['https://tasks.mwheba.com'],
+        CORS_ALLOW_CREDENTIALS=True
+    )
+    def test_valid_origin_request(self):
+        """Test that requests from allowed origins are accepted"""
+        request = self.factory.get('/api/tasks/', HTTP_ORIGIN='https://tasks.mwheba.com')
+        response = self.middleware(request)
+        
+        self.assertIn('Access-Control-Allow-Origin', response)
+        self.assertEqual(response['Access-Control-Allow-Origin'], 'https://tasks.mwheba.com')
+    
+    @override_settings(
+        CORS_ALLOWED_ORIGINS=['https://tasks.mwheba.com'],
+        CORS_ALLOW_CREDENTIALS=True
+    )
+    def test_invalid_origin_request(self):
+        """Test that requests from invalid origins are rejected"""
+        request = self.factory.get('/api/tasks/', HTTP_ORIGIN='https://evil.com')
+        response = self.middleware(request)
+        
+        self.assertNotIn('Access-Control-Allow-Origin', response)
+
+
+@pytest.mark.django_db
+class ProductionCORSTests(TestCase):
+    """Test production-specific CORS configuration"""
+    
+    def test_cors_origins_not_empty(self):
+        """Test that CORS_ALLOWED_ORIGINS is not empty"""
+        from django.conf import settings
+        
+        self.assertGreater(len(settings.CORS_ALLOWED_ORIGINS), 0,
+                          "CORS_ALLOWED_ORIGINS must not be empty")
+    
+    def test_production_settings_filter_dev_urls(self):
+        """Test that production settings filter development URLs"""
+        test_origins = [
+            'https://tasks.mwheba.com',
+            'http://localhost:5173',
+            'http://127.0.0.1:8000',
+            'https://api.mwheba.com',
+            'http://0.0.0.0:3000'
+        ]
+        
+        dev_patterns = ['localhost', '127.0.0.1', '0.0.0.0', ':5173', ':3000', ':8000']
+        
+        filtered_origins = [
+            origin for origin in test_origins
+            if not any(pattern in origin for pattern in dev_patterns)
+        ]
+        
+        self.assertEqual(len(filtered_origins), 2)
+        self.assertIn('https://tasks.mwheba.com', filtered_origins)
+        self.assertIn('https://api.mwheba.com', filtered_origins)

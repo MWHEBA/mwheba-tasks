@@ -244,8 +244,11 @@ pytest
 pytest --cov=. --cov-report=html
 
 # اختبار محدد
-pytest tasks/tests/test_models.py
+pytest tests/test_models.py
+pytest tests/test_api.py::TestClientAPI
 ```
+
+للمزيد من التفاصيل، راجع [TESTING.md](TESTING.md)
 
 ---
 

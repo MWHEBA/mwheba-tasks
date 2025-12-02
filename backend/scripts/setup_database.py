@@ -59,17 +59,17 @@ def load_fixtures():
     print()
     
     fixtures = [
-        ('statuses/fixtures/initial_statuses.json', 'Statuses'),
-        ('products/fixtures/initial_products.json', 'Products'),
-        ('settings/fixtures/initial_settings.json', 'Settings'),
+        ('initial_statuses', 'Statuses'),
+        ('initial_products', 'Products'),
+        ('initial_settings', 'Settings'),
     ]
     
     success = True
     
-    for fixture_path, name in fixtures:
+    for fixture_name, name in fixtures:
         try:
             print(f"Loading {name}...")
-            call_command('loaddata', fixture_path, verbosity=1)
+            call_command('loaddata', fixture_name, verbosity=1)
             print(f"✓ {name} loaded successfully")
             print()
         except Exception as e:
