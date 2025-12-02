@@ -1,0 +1,182 @@
+[
+  {
+    "model": "products.product",
+    "pk": "agenda",
+    "fields": {
+      "name": "أجندة",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "block_note",
+    "fields": {
+      "name": "بلوك نوت",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "plastic_pen",
+    "fields": {
+      "name": "قلم بلاستيك",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "metal_pen",
+    "fields": {
+      "name": "قلم معدن",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "acrylic_coaster",
+    "fields": {
+      "name": "كوستر أكريليك",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "wooden_coaster",
+    "fields": {
+      "name": "كوستر خشب",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "fabric_bag",
+    "fields": {
+      "name": "شنطة قماش",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "cardboard_bag",
+    "fields": {
+      "name": "شنطة كرتون",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "mouse_pad",
+    "fields": {
+      "name": "ماوس باد",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "porcelain_mug",
+    "fields": {
+      "name": "مج بروسلين",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "wall_calendar",
+    "fields": {
+      "name": "نتيجة حائط",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "desk_calendar",
+    "fields": {
+      "name": "نتيجة مكتب",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "plastic_medal",
+    "fields": {
+      "name": "ميدالية بلاستيك",
+      "is_vip": false,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "power_bank",
+    "fields": {
+      "name": "باور بنك",
+      "is_vip": true,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "vip_pen",
+    "fields": {
+      "name": "قلم VIP",
+      "is_vip": true,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "charging_cable",
+    "fields": {
+      "name": "كابل شاحن",
+      "is_vip": true,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "vip_card",
+    "fields": {
+      "name": "كراتة VIP",
+      "is_vip": true,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "vip_medal",
+    "fields": {
+      "name": "ماديلية VIP",
+      "is_vip": true,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "vip_notebook",
+    "fields": {
+      "name": "نوت بوك VIP",
+      "is_vip": true,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "vip_mug",
+    "fields": {
+      "name": "مج VIP",
+      "is_vip": true,
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "model": "app_settings.unifiedsettings",
+    "pk": 1,
+    "fields": {
+      "whatsapp_numbers": [
+        {
+          "id": "default-1",
+          "name": "مدير النظام",
+          "type": "Management",
+          "number": "201229609292",
+          "apiKey": "8684438",
+          "enabled": true,
+          "role": "admin"
+        }
+      ],
+      "notifications_enabled": true,
+      "notification_templates": {},
+      "updated_at": "2025-01-01T00:00:00Z"
+    }
+  }
+]
