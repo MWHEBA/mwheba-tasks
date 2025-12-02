@@ -250,9 +250,23 @@ class SSHDeployer:
             print("⚠️  Falling back to SFTP")
             return self.deploy_directory_sftp(local_dir, remote_dir, exclude)
     
-    def _should_upload_file(self, local_file: str, remote_file: str) -> bool:
-        """Check if file needs upload by comparing size"""
+    def _should_upload_file(self, local_file: str, remote_file: str, force_files: list = None) -> bool:
+        """
+        Check if file needs upload by comparing size
+        
+        Args:
+            local_file: Local file path
+            remote_file: Remote file path
+            force_files: List of filenames to always upload (e.g., ['index.html'])
+        """
+        force_files = force_files or []
+        
         try:
+            # Check if this file should always be uploaded
+            filename = os.path.basename(local_file)
+            if filename in force_files:
+                return True
+            
             local_size = os.path.getsize(local_file)
             
             try:
@@ -273,9 +287,19 @@ class SSHDeployer:
             # If any error, upload to be safe
             return True
     
-    def deploy_directory_sftp(self, local_dir: str, remote_dir: str, exclude: list = None, skip_unchanged: bool = True) -> tuple:
-        """Deploy directory with optimized batch operations (SFTP fallback)"""
+    def deploy_directory_sftp(self, local_dir: str, remote_dir: str, exclude: list = None, skip_unchanged: bool = True, force_upload: list = None) -> tuple:
+        """
+        Deploy directory with optimized batch operations (SFTP fallback)
+        
+        Args:
+            local_dir: Local directory to deploy
+            remote_dir: Remote directory path
+            exclude: Patterns to exclude
+            skip_unchanged: Skip files with same size
+            force_upload: List of filenames to always upload (e.g., ['index.html'])
+        """
         exclude = exclude or []
+        force_upload = force_upload or []
         success = 0
         fail = 0
         skipped = 0
@@ -332,9 +356,12 @@ class SSHDeployer:
         # Filter files that need upload
         if skip_unchanged:
             print(f"🔍 Checking for changes...")
+            if force_upload:
+                print(f"⚡ Force upload: {', '.join(force_upload)}")
+            
             files_to_upload_filtered = []
             for local_file, remote_file in files_to_upload:
-                if self._should_upload_file(local_file, remote_file):
+                if self._should_upload_file(local_file, remote_file, force_upload):
                     files_to_upload_filtered.append((local_file, remote_file))
                 else:
                     skipped += 1
@@ -388,12 +415,21 @@ class SSHDeployer:
         
         return (success, fail)
     
-    def deploy_directory(self, local_dir: str, remote_dir: str, exclude: list = None, use_rsync: bool = False) -> tuple:
-        """Deploy directory - uses SFTP by default (faster on Windows), rsync optional"""
+    def deploy_directory(self, local_dir: str, remote_dir: str, exclude: list = None, use_rsync: bool = False, force_upload: list = None) -> tuple:
+        """
+        Deploy directory - uses SFTP by default (faster on Windows), rsync optional
+        
+        Args:
+            local_dir: Local directory to deploy
+            remote_dir: Remote directory path
+            exclude: Patterns to exclude
+            use_rsync: Use rsync instead of SFTP
+            force_upload: List of filenames to always upload (e.g., ['index.html'])
+        """
         if use_rsync:
             return self.deploy_directory_rsync(local_dir, remote_dir, exclude)
         else:
-            return self.deploy_directory_sftp(local_dir, remote_dir, exclude)
+            return self.deploy_directory_sftp(local_dir, remote_dir, exclude, skip_unchanged=True, force_upload=force_upload)
     
     def _create_all_dirs_root(self, dirs: set):
         """Create all directories at once with single command"""
@@ -448,6 +484,105 @@ class SSHDeployer:
             
         except Exception as e:
             print(f"⚠️  Ownership fix warning: {str(e)}")
+    
+    def cleanup_outdated_files(self, local_dir: str, remote_dir: str, preserve_files: list = None) -> int:
+        """
+        Remove remote files that don't exist in local build
+        
+        Args:
+            local_dir: Local directory (e.g., 'dist')
+            remote_dir: Remote directory path
+            preserve_files: Files/folders to never delete (e.g., ['.env.production', 'api/', 'static/'])
+        
+        Returns:
+            Number of files deleted
+        """
+        preserve_files = preserve_files or []
+        deleted_count = 0
+        
+        try:
+            # Build set of local files (relative paths)
+            local_files_set = set()
+            local_path = Path(local_dir)
+            
+            for root, dirs, files in os.walk(local_dir):
+                rel_path = Path(root).relative_to(local_path)
+                for file in files:
+                    rel_file = os.path.join(str(rel_path), file).replace('\\', '/')
+                    if rel_file.startswith('./'):
+                        rel_file = rel_file[2:]
+                    if rel_file == '.':
+                        rel_file = file
+                    local_files_set.add(rel_file)
+            
+            print(f"📊 Local build has {len(local_files_set)} files")
+            
+            # Get list of remote files
+            if self.use_root_mode and self.root_password:
+                stdin, stdout, stderr = self.ssh.exec_command(
+                    f'echo {self.root_password} | sudo -S find {remote_dir} -type f 2>/dev/null'
+                )
+            else:
+                stdin, stdout, stderr = self.ssh.exec_command(
+                    f'find {remote_dir} -type f 2>/dev/null'
+                )
+            
+            remote_files = stdout.read().decode().strip().split('\n')
+            remote_files = [f for f in remote_files if f and f != remote_dir]
+            
+            print(f"📊 Remote has {len(remote_files)} files")
+            
+            # Check each remote file
+            files_to_delete = []
+            for remote_file in remote_files:
+                if not remote_file:
+                    continue
+                
+                # Get relative path
+                rel_path = remote_file.replace(remote_dir, '').lstrip('/')
+                
+                # Check if file should be preserved
+                should_preserve = False
+                for preserve_pattern in preserve_files:
+                    if rel_path.startswith(preserve_pattern) or preserve_pattern in rel_path:
+                        should_preserve = True
+                        break
+                
+                if should_preserve:
+                    continue
+                
+                # Check if file exists in local
+                if rel_path not in local_files_set:
+                    files_to_delete.append((remote_file, rel_path))
+            
+            # Delete outdated files
+            if files_to_delete:
+                print(f"\n🗑️  Found {len(files_to_delete)} outdated files:")
+                for remote_file, rel_path in files_to_delete[:10]:  # Show first 10
+                    print(f"   • {rel_path}")
+                if len(files_to_delete) > 10:
+                    print(f"   ... and {len(files_to_delete) - 10} more")
+                
+                # Batch delete
+                delete_commands = [f'rm -f {rf}' for rf, _ in files_to_delete]
+                batch_cmd = ' && '.join(delete_commands)
+                
+                if self.use_root_mode and self.root_password:
+                    stdin, stdout, stderr = self.ssh.exec_command(
+                        f'echo {self.root_password} | sudo -S bash -c "{batch_cmd}"'
+                    )
+                else:
+                    stdin, stdout, stderr = self.ssh.exec_command(batch_cmd)
+                
+                stdout.read()
+                deleted_count = len(files_to_delete)
+            else:
+                print("✓ No outdated files found")
+            
+        except Exception as e:
+            print(f"⚠️  Cleanup warning: {str(e)}")
+        
+        return deleted_count
     
     def _mkdir_p_root(self, remote_path: str):
         """Create directory with sudo and set ownership"""
@@ -655,16 +790,31 @@ def main():
         total_fail = 0
         
         if choice in ['1', '3']:
+            print("\n🔨 Building frontend...")
             if not build_frontend():
                 sys.exit(1)
             
+            # Deploy frontend (always upload index.html to bust cache)
             s, f = deployer.deploy_directory(
                 'dist',
                 config.get('FRONTEND_REMOTE_PATH'),
-                ['.git', '__pycache__', '.DS_Store']
+                exclude=['.git', '__pycache__', '.DS_Store'],
+                force_upload=['index.html']
             )
             total_success += s
             total_fail += f
+            
+            # Clean outdated files (sync mode)
+            if total_fail == 0:
+                print("\n🧹 Cleaning outdated files...")
+                preserve_files = ['.env.production', '.htaccess', 'api/', 'static/']
+                deleted = deployer.cleanup_outdated_files(
+                    'dist',
+                    config.get('FRONTEND_REMOTE_PATH'),
+                    preserve_files
+                )
+                if deleted > 0:
+                    print(f"✓ Removed {deleted} outdated files")
         
         if choice in ['2', '3']:
             # Clean old migrations before deploying new ones

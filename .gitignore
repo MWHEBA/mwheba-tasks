@@ -125,3 +125,4 @@ backend/.idea/
 # OS
 .DS_Store
 Thumbs.db
+backend/scripts/deploy_config.env
