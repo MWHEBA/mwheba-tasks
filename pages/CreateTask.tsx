@@ -150,13 +150,7 @@ export const CreateTask: React.FC = () => {
   const loadClients = async () => {
     const data = await ClientService.getAll();
     setClients(data);
-    if (data.length > 0 && !selectedClientId) {
-      const first = data[0];
-      setSelectedClientId(first.id);
-      setClientSearchName(first.name);
-      setClientSearchCode(first.number);
-      setClientNotes(first.notes || '');
-    }
+    // Don't auto-select any client - let user choose
   };
 
   const loadProducts = async () => {
@@ -218,7 +212,7 @@ export const CreateTask: React.FC = () => {
                 name: file.name,
                 type: file.type,
                 size: file.size,
-                dataUrl: re.target?.result as string
+                url: re.target?.result as string
             });
             if (newAttachments.length === e.target.files?.length) {
                 setAttachments(prev => [...prev, ...newAttachments]);
@@ -244,7 +238,7 @@ export const CreateTask: React.FC = () => {
                     name: file.name,
                     type: file.type,
                     size: file.size,
-                    dataUrl: re.target?.result as string
+                    url: re.target?.result as string
                 });
                 if (newAttachments.length === e.target.files?.length) {
                     setNewSubtask(prev => ({
@@ -386,7 +380,7 @@ export const CreateTask: React.FC = () => {
         }
     }
 
-    const defaultStatus = StatusService.getDefault();
+    const defaultStatus = await StatusService.getDefault();
 
     const taskDTO = {
         title,
@@ -663,7 +657,7 @@ export const CreateTask: React.FC = () => {
                                                     name: file.name,
                                                     type: file.type,
                                                     size: file.size,
-                                                    dataUrl: re.target?.result as string
+                                                    url: re.target?.result as string
                                                 });
                                                 if (newAttachments.length === e.target.files?.length) {
                                                     setAttachments(prev => [...prev, ...newAttachments]);
@@ -924,7 +918,7 @@ export const CreateTask: React.FC = () => {
                 </AnimatePresence>
                 
                 {subtasks.length === 0 && (
-                    <div className="text-center text-sm text-slate-400 py-2 italic bg-red-50 rounded border border-red-100 text-red-500">
+                    <div className="text-center text-sm py-2 italic bg-red-50 rounded border border-red-100 text-red-500">
                         يجب إضافة مهمة فرعية (صنف) واحدة على الأقل للاستمرار
                     </div>
                 )}

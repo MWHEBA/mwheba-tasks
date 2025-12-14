@@ -7,7 +7,7 @@ export const TaskService = {
   getAll: async (): Promise<Task[]> => {
     try {
       let allTasks: Task[] = [];
-      let url = '/tasks';
+      let url = '/tasks/';
       
       // Fetch all pages
       while (url) {
@@ -20,7 +20,7 @@ export const TaskService = {
           allTasks = [...allTasks, ...response.results];
           if (response.next) {
             const match = response.next.match(/\/api\/(.+)/);
-            url = match ? `/${match[1].replace(/\/$/, '')}` : '';
+            url = match ? `/${match[1]}` : '';
           } else {
             url = '';
           }

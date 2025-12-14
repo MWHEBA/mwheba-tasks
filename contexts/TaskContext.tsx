@@ -20,6 +20,15 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [lastFetch, setLastFetch] = useState<number>(0);
 
   const refreshTasks = useCallback(async (force = false) => {
+    // Check if user is authenticated before making API calls
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      setTasks([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
     // Auto-refresh if data is older than 30 seconds
     const now = Date.now();
     const cacheAge = now - lastFetch;
