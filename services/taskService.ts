@@ -412,5 +412,57 @@ export const TaskService = {
   getTasksByClient: async (clientId: string): Promise<Task[]> => {
     const tasks = await TaskService.getAll();
     return tasks.filter(task => task.clientId === clientId);
+  },
+
+  /**
+   * إضافة مهمة فرعية لمهمة موجودة
+   */
+  addSubtask: async (parentTaskId: string, subtaskData: Partial<CreateTaskDTO>): Promise<Task> => {
+    const parentTask = await TaskService.getById(parentTaskId);
+    if (!parentTask) throw new Error("المهمة الأساسية غير موجودة");
+
+    // التأكد من وجود clientId في المهمة الأساسية
+    const clientId = parentTask.clientId || (parentTask.client && parentTask.client.id);
+    if (!clientId) throw new Error("لا يمكن العثور على معرف العميل في المهمة الأساسية");
+
+    const defaultStatus = await StatusService.getDefault();
+    const allTasks = await TaskService.getAll();
+    const existingSubtasks = allTasks.filter(t => t.parentId === parentTaskId);
+    
+    const subtask: any = {
+      id: crypto.randomUUID(),
+      title: subtaskData.title || 'مهمة فرعية بدون عنوان',
+      description: subtaskData.description || '',
+      urgency: subtaskData.urgency || Urgency.NORMAL,
+      status: defaultStatus.id,
+      clientId: clientId, // استخدام clientId من المهمة الأساسية
+      parentId: parentTaskId,
+      attachments: subtaskData.attachments || [],
+      comments: [],
+      orderIndex: existingSubtasks.length,
+      createdAt: Date.now(),
+      printingType: subtaskData.printingType,
+      size: subtaskData.size,
+      isVip: subtaskData.isVip || false,
+      activityLog: [{
+        id: crypto.randomUUID(),
+        timestamp: Date.now(),
+        type: ActivityType.TASK_CREATED,
+        description: 'تم إنشاء المهمة الفرعية'
+      }]
+    };
+    
+    await apiCall('/tasks', {
+      method: 'POST',
+      body: JSON.stringify(subtask),
+    });
+
+    // إرجاع المهمة الفرعية مع بيانات العميل
+    const fullSubtask: Task = {
+      ...subtask,
+      client: parentTask.client,
+    };
+
+    return fullSubtask;
   }
 };

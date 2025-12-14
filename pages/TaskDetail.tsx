@@ -69,7 +69,8 @@ export const TaskDetail: React.FC = () => {
   
   // Delete Confirmation State
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [attachmentToDelete, setAttachmentToDelete] = useState<{ taskId: string; attachmentId: string } | null>(null); 
+  const [attachmentToDelete, setAttachmentToDelete] = useState<{ taskId: string; attachmentId: string } | null>(null);
+  const [subtaskToDelete, setSubtaskToDelete] = useState<string | null>(null); 
 
   useEffect(() => {
     if (id) {
@@ -194,55 +195,15 @@ export const TaskDetail: React.FC = () => {
       }
 
       try {
-          const defaultStatus = await StatusService.getDefault();
-          const allTasks = await TaskService.getAll();
-          const existingSubtasks = allTasks.filter(t => t.parentId === task.id);
-          
-          const subtaskData: any = {
-              id: crypto.randomUUID(),
+          await TaskService.addSubtask(task.id, {
               title: newSubtask.title,
               description: newSubtask.description || '',
               urgency: newSubtask.urgency,
-              status: defaultStatus.id,
-              clientId: task.clientId,
-              parentId: task.id,
               attachments: [],
-              comments: [],
-              orderIndex: existingSubtasks.length,
-              createdAt: Date.now(),
               printingType: newSubtask.printingType,
               size: newSubtask.size,
-              isVip: newSubtask.isVip,
-              activityLog: [{
-                  id: crypto.randomUUID(),
-                  timestamp: Date.now(),
-                  type: 'TASK_CREATED',
-                  description: 'تم إنشاء المهمة الفرعية'
-              }]
-          };
-
-          await TaskService.create(
-              {
-                  title: subtaskData.title,
-                  description: subtaskData.description,
-                  urgency: subtaskData.urgency,
-                  clientId: subtaskData.clientId,
-                  attachments: [],
-                  printingType: subtaskData.printingType,
-                  size: subtaskData.size,
-                  isVip: subtaskData.isVip
-              },
-              []
-          );
-
-          // Update the created task to set parentId
-          const createdTasks = await TaskService.getAll();
-          const newTask = createdTasks.find(t => t.title === subtaskData.title && !t.parentId);
-          if (newTask) {
-              newTask.parentId = task.id;
-              newTask.orderIndex = existingSubtasks.length;
-              await TaskService.update(newTask);
-          }
+              isVip: newSubtask.isVip
+          });
 
           setIsAddSubtaskOpen(false);
           setNewSubtask({
@@ -280,6 +241,19 @@ export const TaskDetail: React.FC = () => {
           alert('فشل حذف المرفق');
       }
   }, [attachmentToDelete, id, loadTask]);
+
+  const handleDeleteSubtask = useCallback(async () => {
+    if (!subtaskToDelete) return;
+    
+    try {
+      await TaskService.delete(subtaskToDelete);
+      setSubtaskToDelete(null);
+      loadTask(id!);
+    } catch (error) {
+      console.error('Failed to delete subtask:', error);
+      alert('فشل حذف المهمة الفرعية');
+    }
+  }, [subtaskToDelete, id, loadTask]);
 
   // Calculate statistics for main task
   const getTaskStats = () => {
@@ -805,10 +779,17 @@ export const TaskDetail: React.FC = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 10 }}
                       transition={{ duration: 0.15 }}
+                      className="space-y-4"
                     >
-                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">الوصف</h3>
-                      <div className="prose prose-slate max-w-none text-slate-600 whitespace-pre-line leading-relaxed">
-                          {task.description || <span className="text-slate-400 italic">لا يوجد وصف.</span>}
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">الوصف</h3>
+                        <div className="prose prose-slate max-w-none text-slate-600 whitespace-pre-line leading-relaxed min-h-[60px] p-4 bg-slate-50 rounded-lg border">
+                            {task.description && task.description.trim() ? (
+                              task.description
+                            ) : (
+                              <span className="text-slate-400 italic">لا يوجد وصف للمهمة.</span>
+                            )}
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -855,6 +836,19 @@ export const TaskDetail: React.FC = () => {
                                   >
                                       <i className="fa-solid fa-pen text-[10px]"></i>
                                   </button>
+                                  
+                                  {Permissions.canDeleteTask() && (
+                                    <button 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSubtaskToDelete(sub.id);
+                                        }}
+                                        className="text-slate-300 hover:text-red-600 p-1 hover:bg-red-50 rounded transition-colors z-10"
+                                        title="حذف المهمة الفرعية"
+                                    >
+                                        <i className="fa-solid fa-trash text-[10px]"></i>
+                                    </button>
+                                  )}
                                   
                                   {/* Status Stepper next to title */}
                                   <div onClick={(e) => e.stopPropagation()} className="mr-auto">
@@ -1556,7 +1550,19 @@ export const TaskDetail: React.FC = () => {
         </Suspense>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Subtask Confirmation Modal */}
+      <ConfirmDialog
+        isOpen={!!subtaskToDelete}
+        title="حذف المهمة الفرعية"
+        message="هل أنت متأكد من حذف هذه المهمة الفرعية؟ سيتم حذف جميع المرفقات والتعليقات المرتبطة بها. لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        onConfirm={handleDeleteSubtask}
+        onCancel={() => setSubtaskToDelete(null)}
+      />
+
+      {/* Delete Attachment Confirmation Modal */}
       <ConfirmDialog
         isOpen={deleteConfirmOpen}
         title="حذف المرفق"
