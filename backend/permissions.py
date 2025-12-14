@@ -4,7 +4,7 @@ Custom permission classes for role-based access control.
 These permissions implement the authorization requirements:
 - Admin: Full access to all system functions
 - Designer: Can create and edit tasks, but cannot delete
-- Print Manager: Can view and update task status, but cannot create tasks
+- Print Manager: Can create, view and update tasks, but cannot delete tasks
 """
 from rest_framework import permissions
 
@@ -37,7 +37,7 @@ class CanCreateTask(permissions.BasePermission):
     Permission class that allows task creation for:
     - Admin users: Can create tasks
     - Designer users: Can create tasks
-    - Print Manager users: Cannot create tasks
+    - Print Manager users: Can create tasks
     
     Used for task creation endpoints.
     """
@@ -53,8 +53,8 @@ class CanCreateTask(permissions.BasePermission):
         
         # For POST (create) requests, check role
         if request.method == 'POST':
-            # Admin and Designer can create tasks
-            return request.user.is_admin() or request.user.is_designer()
+            # Admin, Designer, and Print Manager can create tasks
+            return request.user.is_admin() or request.user.is_designer() or request.user.is_print_manager()
         
         # For PUT/PATCH (update) requests, allow all authenticated users
         # (they can update task status, comments, etc.)
