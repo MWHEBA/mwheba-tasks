@@ -9,6 +9,7 @@ interface TaskContextType {
   refreshTasks: () => Promise<void>;
   updateTask: (task: Task) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
+  updateTaskStatus: (taskId: string, newStatusId: string) => Promise<void>;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -97,6 +98,31 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [refreshTasks]);
 
+  const updateTaskStatus = useCallback(async (taskId: string, newStatusId: string) => {
+    try {
+      // Optimistic update first (immediate UI response)
+      setTasks(prevTasks => 
+        prevTasks.map(t => 
+          t.id === taskId ? { ...t, status: newStatusId } : t
+        )
+      );
+      
+      // Then update on server
+      await TaskService.updateStatus(taskId, newStatusId);
+      
+      // Refresh to get any server-side changes (like activity logs)
+      await refreshTasks();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'فشل تحديث حالة المهمة';
+      setError(errorMessage);
+      console.error('Error updating task status:', err);
+      
+      // Revert optimistic update on error
+      await refreshTasks();
+      throw err;
+    }
+  }, [refreshTasks]);
+
   const value: TaskContextType = {
     tasks,
     loading,
@@ -104,6 +130,7 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     refreshTasks,
     updateTask,
     deleteTask,
+    updateTaskStatus,
   };
 
   return (

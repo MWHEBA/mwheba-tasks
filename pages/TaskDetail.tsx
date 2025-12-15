@@ -13,6 +13,7 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 import { formatRelativeDate } from '../utils/dateUtils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Permissions } from '../utils/permissions';
+import { AuthService } from '../services/authService';
 
 const AttachmentPreview = lazy(() => import('../components/AttachmentPreview').then(module => ({ default: module.AttachmentPreview })));
 
@@ -82,8 +83,8 @@ export const TaskDetail: React.FC = () => {
   useEffect(() => {
     if (task) {
       if (task.parentId) {
-        // For subtasks, default to attachments
-        setActiveTab('attachments');
+        // For subtasks, default to comments
+        setActiveTab('comments');
       } else {
         // For main tasks, default to subtasks
         setActiveTab('subtasks');
@@ -374,7 +375,9 @@ export const TaskDetail: React.FC = () => {
                     className={`p-3.5 rounded-lg border transition-all ${
                         c.isResolved 
                             ? 'bg-slate-50 border-slate-200 opacity-70' 
-                            : 'bg-white border-red-100'
+                            : c.author?.role === 'designer'
+                                ? 'bg-amber-50 border-amber-200'
+                                : 'bg-rose-50 border-rose-200'
                     }`}
                   >
                       <div className="flex items-start justify-between gap-3">
@@ -387,6 +390,15 @@ export const TaskDetail: React.FC = () => {
                                     <i className="fa-regular fa-clock text-[10px]"></i>
                                     {formatRelativeDate(c.createdAt, true)}
                                 </div>
+                                {c.author && (
+                                    <div className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                                        c.author.role === 'designer' 
+                                            ? 'bg-amber-100 text-amber-700' 
+                                            : 'bg-rose-100 text-rose-700'
+                                    }`}>
+                                        {c.author.role === 'designer' ? 'مصمم' : 'عميل'}
+                                    </div>
+                                )}
                                 {!c.isResolved && (
                                     <button 
                                         onClick={() => setActiveReplyBox(activeReplyBox === c.id ? null : c.id)}
@@ -697,27 +709,6 @@ export const TaskDetail: React.FC = () => {
                   {task.parentId && (
                     <>
                       <button
-                        onClick={() => setActiveTab('attachments')}
-                        className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-medium transition-colors relative ${
-                          activeTab === 'attachments'
-                            ? 'text-brand-600 bg-brand-50'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                        }`}
-                      >
-                        <i className="fa-solid fa-paperclip ml-2"></i>
-                        المرفقات
-                        <span className="mr-1 bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded-full text-xs">
-                          {task.attachments.length}
-                        </span>
-                        {activeTab === 'attachments' && (
-                          <motion.div 
-                            layoutId="activeTab"
-                            className="absolute bottom-0 right-0 left-0 h-0.5 bg-brand-600"
-                          />
-                        )}
-                      </button>
-                      
-                      <button
                         onClick={() => setActiveTab('comments')}
                         className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-medium transition-colors relative ${
                           activeTab === 'comments'
@@ -733,6 +724,27 @@ export const TaskDetail: React.FC = () => {
                           </span>
                         )}
                         {activeTab === 'comments' && (
+                          <motion.div 
+                            layoutId="activeTab"
+                            className="absolute bottom-0 right-0 left-0 h-0.5 bg-brand-600"
+                          />
+                        )}
+                      </button>
+                      
+                      <button
+                        onClick={() => setActiveTab('attachments')}
+                        className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-medium transition-colors relative ${
+                          activeTab === 'attachments'
+                            ? 'text-brand-600 bg-brand-50'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        }`}
+                      >
+                        <i className="fa-solid fa-paperclip ml-2"></i>
+                        المرفقات
+                        <span className="mr-1 bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded-full text-xs">
+                          {task.attachments.length}
+                        </span>
+                        {activeTab === 'attachments' && (
                           <motion.div 
                             layoutId="activeTab"
                             className="absolute bottom-0 right-0 left-0 h-0.5 bg-brand-600"
@@ -950,7 +962,7 @@ export const TaskDetail: React.FC = () => {
                                                   handleAddComment(sub.id);
                                                 }
                                               }}
-                                              placeholder="أضف ملاحظة (سيتم تغيير الحالة إلى يوجد ملاحظات)..."
+                                              placeholder={`أضف ملاحظة (سيتم تغيير الحالة إلى ${AuthService.isDesigner() ? 'ملحوظات المصمم' : 'ملاحظات العميل'})...`}
                                               className="bg-white flex-1 text-sm border-slate-300 rounded-lg focus:ring-red-500 focus:border-red-500 border px-3 py-2"
                                           />
                                           <button 
@@ -966,46 +978,6 @@ export const TaskDetail: React.FC = () => {
                           </AnimatePresence>
                         </motion.div>
                       ))}
-                    </motion.div>
-                  )}
-
-                  {activeTab === 'attachments' && task.parentId && (
-                    <motion.div
-                      key="attachments"
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 10 }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-sm font-bold text-slate-900 uppercase">المرفقات</h3>
-                          <button 
-                            onClick={() => handleUploadClick(task.id)} 
-                            className="text-sm text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-2 rounded-lg flex items-center gap-2 transition-colors"
-                          >
-                              <i className="fa-solid fa-plus"></i>
-                              إضافة ملف
-                          </button>
-                          <input 
-                             type="file" multiple className="hidden" 
-                             ref={el => { hiddenFileInputs.current[task.id] = el; }}
-                             onChange={(e) => handleFileChange(e, task.id)}
-                          />
-                      </div>
-                      {task.attachments.length > 0 ? (
-                        renderAttachments(task.attachments)
-                      ) : (
-                        <div className="text-center py-12">
-                          <i className="fa-regular fa-folder-open text-5xl text-slate-300 mb-3"></i>
-                          <p className="text-slate-500">لا توجد مرفقات بعد</p>
-                          <button 
-                            onClick={() => handleUploadClick(task.id)}
-                            className="mt-3 text-brand-600 hover:underline text-sm"
-                          >
-                            ارفع أول ملف
-                          </button>
-                        </div>
-                      )}
                     </motion.div>
                   )}
 
@@ -1052,6 +1024,46 @@ export const TaskDetail: React.FC = () => {
                               </button>
                           </div>
                       </div>
+                    </motion.div>
+                  )}
+
+                  {activeTab === 'attachments' && task.parentId && (
+                    <motion.div
+                      key="attachments"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-bold text-slate-900 uppercase">المرفقات</h3>
+                          <button 
+                            onClick={() => handleUploadClick(task.id)} 
+                            className="text-sm text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                          >
+                              <i className="fa-solid fa-plus"></i>
+                              إضافة ملف
+                          </button>
+                          <input 
+                             type="file" multiple className="hidden" 
+                             ref={el => { hiddenFileInputs.current[task.id] = el; }}
+                             onChange={(e) => handleFileChange(e, task.id)}
+                          />
+                      </div>
+                      {task.attachments.length > 0 ? (
+                        renderAttachments(task.attachments)
+                      ) : (
+                        <div className="text-center py-12">
+                          <i className="fa-regular fa-folder-open text-5xl text-slate-300 mb-3"></i>
+                          <p className="text-slate-500">لا توجد مرفقات بعد</p>
+                          <button 
+                            onClick={() => handleUploadClick(task.id)}
+                            className="mt-3 text-brand-600 hover:underline text-sm"
+                          >
+                            ارفع أول ملف
+                          </button>
+                        </div>
+                      )}
                     </motion.div>
                   )}
 

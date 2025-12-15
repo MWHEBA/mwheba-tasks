@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const CATEGORY_LABELS = {
   task: { label: 'المهام', icon: 'fa-solid fa-tasks', color: 'text-blue-600' },
-  comment: { label: 'الملاحظات', icon: 'fa-solid fa-comment', color: 'text-purple-600' },
+  comment: { label: 'الملحوظات', icon: 'fa-solid fa-comment', color: 'text-purple-600' },
   status: { label: 'الحالات', icon: 'fa-solid fa-circle-check', color: 'text-green-600' }
 };
 

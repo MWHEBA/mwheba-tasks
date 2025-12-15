@@ -63,6 +63,11 @@ export interface Comment {
   isResolved?: boolean;
   parentCommentId?: string;
   replies?: Comment[];
+  author?: {
+    id: number;
+    username: string;
+    role: 'admin' | 'designer' | 'print_manager';
+  };
 }
 
 export enum ActivityType {

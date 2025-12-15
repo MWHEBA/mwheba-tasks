@@ -30,7 +30,8 @@ const AVAILABLE_ICONS = [
   // Currently used icons (from default statuses)
   'fa-regular fa-clock',        // قيد الانتظار
   'fa-solid fa-palette',        // جاري التصميم
-  'fa-regular fa-comments',     // يوجد ملاحظات
+  'fa-regular fa-comments',     // ملاحظات العميل
+  'fa-solid fa-pencil-alt',     // ملحوظات المصمم
   'fa-solid fa-hourglass-half', // في انتظار رد العميل
   'fa-solid fa-layer-group',    // جاهز للمونتاج
   'fa-solid fa-check-circle',   // تم المونتاج

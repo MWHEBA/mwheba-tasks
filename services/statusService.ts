@@ -4,17 +4,18 @@ import { apiCall } from '../config/api';
 // Initial Seed Data - used only for first-time setup
 const INITIAL_STATUSES: TaskStatus[] = [
   { id: 'pending', label: 'قيد الانتظار', color: 'slate', icon: 'fa-regular fa-clock', orderIndex: 0, isFinished: false, isDefault: true, allowedNextStatuses: ['in_design', 'on_hold', 'cancelled'] },
-  { id: 'in_design', label: 'جاري التصميم', color: 'blue', icon: 'fa-solid fa-palette', orderIndex: 1, isFinished: false, allowedNextStatuses: ['has_comments', 'awaiting_client_response', 'on_hold', 'cancelled'] },
-  { id: 'has_comments', label: 'يوجد ملاحظات', color: 'rose', icon: 'fa-regular fa-comments', orderIndex: 2, isFinished: false, allowedNextStatuses: ['in_design', 'awaiting_client_response', 'on_hold', 'cancelled'] },
-  { id: 'awaiting_client_response', label: 'في انتظار رد العميل', color: 'orange', icon: 'fa-solid fa-hourglass-half', orderIndex: 3, isFinished: false, allowedNextStatuses: ['in_design', 'has_comments', 'ready_for_montage', 'on_hold', 'cancelled'] },
-  { id: 'ready_for_montage', label: 'جاهز للمونتاج', color: 'cyan', icon: 'fa-solid fa-layer-group', orderIndex: 4, isFinished: false, allowedNextStatuses: ['montage_completed', 'has_comments', 'on_hold', 'cancelled'] },
-  { id: 'montage_completed', label: 'تم المونتاج', color: 'purple', icon: 'fa-solid fa-check-circle', orderIndex: 5, isFinished: false, allowedNextStatuses: ['ready_for_printing', 'has_comments', 'on_hold', 'cancelled'] },
-  { id: 'ready_for_printing', label: 'جاهز للطباعة', color: 'green', icon: 'fa-solid fa-box-open', orderIndex: 6, isFinished: false, allowedNextStatuses: ['in_printing', 'on_hold', 'cancelled'] },
-  { id: 'in_printing', label: 'جاري الطباعة', color: 'teal', icon: 'fa-solid fa-print', orderIndex: 7, isFinished: false, allowedNextStatuses: ['ready_for_delivery', 'on_hold', 'cancelled'] },
-  { id: 'ready_for_delivery', label: 'جاهز للتسليم', color: 'lime', icon: 'fa-solid fa-truck', orderIndex: 8, isFinished: false, allowedNextStatuses: ['delivered', 'on_hold', 'cancelled'] },
-  { id: 'on_hold', label: 'معلق', color: 'slate', icon: 'fa-solid fa-pause-circle', orderIndex: 9, isFinished: false, allowedNextStatuses: [] },
-  { id: 'delivered', label: 'تم التسليم', color: 'emerald', icon: 'fa-solid fa-flag-checkered', orderIndex: 10, isFinished: true, allowedNextStatuses: [] },
-  { id: 'cancelled', label: 'ملغي', color: 'red', icon: 'fa-solid fa-ban', orderIndex: 11, isFinished: true, isCancelled: true, allowedNextStatuses: [] },
+  { id: 'in_design', label: 'جاري التصميم', color: 'blue', icon: 'fa-solid fa-palette', orderIndex: 1, isFinished: false, allowedNextStatuses: ['awaiting_client_response', 'has_comments', 'on_hold'] },
+  { id: 'has_comments', label: 'ملاحظات العميل', color: 'rose', icon: 'fa-regular fa-comments', orderIndex: 2, isFinished: false, allowedNextStatuses: ['designer_notes'] },
+  { id: 'designer_notes', label: 'ملحوظات المصمم', color: 'amber', icon: 'fa-solid fa-pencil-alt', orderIndex: 3, isFinished: false, allowedNextStatuses: ['awaiting_client_response'] },
+  { id: 'awaiting_client_response', label: 'في انتظار رد العميل', color: 'orange', icon: 'fa-solid fa-hourglass-half', orderIndex: 4, isFinished: false, allowedNextStatuses: ['has_comments', 'ready_for_montage', 'on_hold'] },
+  { id: 'ready_for_montage', label: 'جاهز للمونتاج', color: 'cyan', icon: 'fa-solid fa-layer-group', orderIndex: 5, isFinished: false, allowedNextStatuses: ['montage_completed'] },
+  { id: 'montage_completed', label: 'تم المونتاج', color: 'purple', icon: 'fa-solid fa-check-circle', orderIndex: 6, isFinished: false, allowedNextStatuses: ['ready_for_printing'] },
+  { id: 'ready_for_printing', label: 'جاهز للطباعة', color: 'green', icon: 'fa-solid fa-box-open', orderIndex: 7, isFinished: false, allowedNextStatuses: ['in_printing'] },
+  { id: 'in_printing', label: 'جاري الطباعة', color: 'teal', icon: 'fa-solid fa-print', orderIndex: 8, isFinished: false, allowedNextStatuses: ['ready_for_delivery'] },
+  { id: 'ready_for_delivery', label: 'جاهز للتسليم', color: 'lime', icon: 'fa-solid fa-truck', orderIndex: 9, isFinished: false, allowedNextStatuses: ['delivered'] },
+  { id: 'on_hold', label: 'معلق', color: 'slate', icon: 'fa-solid fa-pause-circle', orderIndex: 10, isFinished: false, allowedNextStatuses: [] },
+  { id: 'delivered', label: 'تم التسليم', color: 'emerald', icon: 'fa-solid fa-flag-checkered', orderIndex: 11, isFinished: true, allowedNextStatuses: [] },
+  { id: 'cancelled', label: 'ملغي', color: 'red', icon: 'fa-solid fa-ban', orderIndex: 12, isFinished: true, isCancelled: true, allowedNextStatuses: [] },
 ];
 
 export const StatusService = {

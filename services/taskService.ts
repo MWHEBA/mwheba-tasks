@@ -146,12 +146,21 @@ export const TaskService = {
       }),
     });
 
-    // تحديث حالة التاسك الفرعية لـ "يوجد ملاحظات" عند إضافة كومنت
+    // تحديد الحالة المناسبة بناءً على دور المستخدم
+    const { AuthService } = await import('./authService');
     const allStatuses = await StatusService.getAll();
-    const hasCommentsStatus = allStatuses.find(s => s.id === 'has_comments');
     
-    if (hasCommentsStatus && task.status !== hasCommentsStatus.id) {
-      await TaskService.updateStatus(taskId, hasCommentsStatus.id);
+    let targetStatus;
+    if (AuthService.isDesigner()) {
+      // المصمم يكتب تعليق → ملحوظات المصمم
+      targetStatus = allStatuses.find(s => s.id === 'designer_notes');
+    } else {
+      // العميل/الإداري يكتب تعليق → ملاحظات العميل
+      targetStatus = allStatuses.find(s => s.id === 'has_comments');
+    }
+    
+    if (targetStatus && task.status !== targetStatus.id) {
+      await TaskService.updateStatus(taskId, targetStatus.id);
     }
   },
 
@@ -167,12 +176,21 @@ export const TaskService = {
       }),
     });
 
-    // تحديث حالة التاسك الفرعية لـ "يوجد ملاحظات" عند إضافة رد
+    // تحديد الحالة المناسبة بناءً على دور المستخدم
+    const { AuthService } = await import('./authService');
     const allStatuses = await StatusService.getAll();
-    const hasCommentsStatus = allStatuses.find(s => s.id === 'has_comments');
     
-    if (hasCommentsStatus && task.status !== hasCommentsStatus.id) {
-      await TaskService.updateStatus(taskId, hasCommentsStatus.id);
+    let targetStatus;
+    if (AuthService.isDesigner()) {
+      // المصمم يكتب رد → ملحوظات المصمم
+      targetStatus = allStatuses.find(s => s.id === 'designer_notes');
+    } else {
+      // العميل/الإداري يكتب رد → ملاحظات العميل
+      targetStatus = allStatuses.find(s => s.id === 'has_comments');
+    }
+    
+    if (targetStatus && task.status !== targetStatus.id) {
+      await TaskService.updateStatus(taskId, targetStatus.id);
     }
 
     // Notifications are now handled by Backend signal handlers

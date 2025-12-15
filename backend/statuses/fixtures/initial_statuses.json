@@ -42,7 +42,7 @@
     "model": "statuses.taskstatus",
     "pk": "has_comments",
     "fields": {
-      "label": "يوجد ملاحظات",
+      "label": "ملحوظات العميل",
       "color": "rose",
       "icon": "fa-regular fa-comments",
       "order_index": 2,

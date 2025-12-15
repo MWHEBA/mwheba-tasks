@@ -19,7 +19,7 @@ type SortOption = 'default' | 'deadline' | 'urgency';
 type ViewMode = 'list' | 'compact';
 
 export const TaskList: React.FC = () => {
-  const { tasks: contextTasks, loading: contextLoading, refreshTasks, deleteTask } = useTaskContext();
+  const { tasks: contextTasks, loading: contextLoading, refreshTasks, deleteTask, updateTaskStatus } = useTaskContext();
   const [statuses, setStatuses] = useState<TaskStatus[]>([]);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [activeStatusFilter, setActiveStatusFilter] = useState<string | null>(null);
@@ -224,6 +224,15 @@ export const TaskList: React.FC = () => {
     }
   }, [taskToDelete, deleteTask]);
 
+  const handleStatusChange = useCallback(async (taskId: string, newStatusId: string) => {
+    try {
+      await updateTaskStatus(taskId, newStatusId);
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+      alert('فشل تحديث حالة المهمة');
+    }
+  }, [updateTaskStatus]);
+
   if (contextLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -341,7 +350,13 @@ export const TaskList: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <StatusBadge status={task.status} size="small" />
+                <StatusBadge 
+                  status={task.status} 
+                  size="small" 
+                  clickable={true}
+                  onStatusChange={(newStatusId) => handleStatusChange(task.id, newStatusId)}
+                  taskId={task.id}
+                />
                 {Permissions.canDeleteTask() && (
                   <button
                     onClick={(e) => handleDeleteClick(task, e)}
@@ -447,7 +462,12 @@ export const TaskList: React.FC = () => {
               </div>
 
               <div className="flex flex-col items-center gap-2">
-                <StatusBadge status={task.status} />
+                <StatusBadge 
+                  status={task.status} 
+                  clickable={true}
+                  onStatusChange={(newStatusId) => handleStatusChange(task.id, newStatusId)}
+                  taskId={task.id}
+                />
                 
                 {/* Time Indicators */}
                 <div className="flex flex-col items-center gap-1 text-[10px] text-slate-400 text-center">
@@ -502,7 +522,13 @@ export const TaskList: React.FC = () => {
                                 </span>
                               )}
                           </div>
-                          <StatusBadge status={sub.status} size="small" />
+                          <StatusBadge 
+                            status={sub.status} 
+                            size="small" 
+                            clickable={true}
+                            onStatusChange={(newStatusId) => handleStatusChange(sub.id, newStatusId)}
+                            taskId={sub.id}
+                          />
                       </Link>
                   ))}
                   
