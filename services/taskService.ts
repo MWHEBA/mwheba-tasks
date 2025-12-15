@@ -241,10 +241,19 @@ export const TaskService = {
       resolvedComments: updatedTask.comments.filter(c => c.isResolved).length
     });
 
-    // لما كل الكومنتات تكون محلولة، تحويل التاسك لـ "في انتظار رد العميل"
-    if (allResolved && updatedTask.status === hasCommentsStatus?.id && awaitingClientResponseStatus) {
-      console.log('Changing status to awaiting client response');
-      await TaskService.updateStatus(taskId, awaitingClientResponseStatus.id);
+    // تحديد الحالة التالية بناءً على الحالة الحالية ونوع التعليقات المحلولة
+    const designerNotesStatus = allStatuses.find(s => s.id === 'designer_notes');
+    
+    if (allResolved) {
+      if (updatedTask.status === designerNotesStatus?.id && hasCommentsStatus) {
+        // لما كل تعليقات المصمم تتحل → ملاحظات العميل
+        console.log('Changing status from designer notes to client comments');
+        await TaskService.updateStatus(taskId, hasCommentsStatus.id);
+      } else if (updatedTask.status === hasCommentsStatus?.id && awaitingClientResponseStatus) {
+        // لما كل تعليقات العميل تتحل → في انتظار رد العميل
+        console.log('Changing status from client comments to awaiting client response');
+        await TaskService.updateStatus(taskId, awaitingClientResponseStatus.id);
+      }
     }
   },
 
