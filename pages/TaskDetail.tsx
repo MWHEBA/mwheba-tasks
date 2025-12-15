@@ -41,7 +41,7 @@ export const TaskDetail: React.FC = () => {
   const [parentTask, setParentTask] = useState<Task | null>(null);
   const [subtasks, setSubtasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [activeTab, setActiveTab] = useState<TabType>('subtasks');
   
   // Edit States
   const [isEditMainOpen, setIsEditMainOpen] = useState(false);
@@ -77,6 +77,19 @@ export const TaskDetail: React.FC = () => {
         loadTask(id);
     }
   }, [id]);
+
+  // Set default tab based on task type
+  useEffect(() => {
+    if (task) {
+      if (task.parentId) {
+        // For subtasks, default to attachments
+        setActiveTab('attachments');
+      } else {
+        // For main tasks, default to subtasks
+        setActiveTab('subtasks');
+      }
+    }
+  }, [task]);
 
   const loadTask = useCallback(async (taskId: string) => {
     setLoading(true);
@@ -658,25 +671,7 @@ export const TaskDetail: React.FC = () => {
             >
               <div className="border-b border-slate-200">
                 <nav className="flex overflow-x-auto">
-                  <button
-                    onClick={() => setActiveTab('overview')}
-                    className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-medium transition-colors relative ${
-                      activeTab === 'overview'
-                        ? 'text-brand-600 bg-brand-50'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                    }`}
-                  >
-                    <i className="fa-solid fa-info-circle ml-2"></i>
-                    نظرة عامة
-                    {activeTab === 'overview' && (
-                      <motion.div 
-                        layoutId="activeTab"
-                        className="absolute bottom-0 right-0 left-0 h-0.5 bg-brand-600"
-                      />
-                    )}
-                  </button>
-                  
-                  {isMainTask && subtasks.length > 0 && (
+                  {isMainTask && (
                     <button
                       onClick={() => setActiveTab('subtasks')}
                       className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-medium transition-colors relative ${
@@ -772,28 +767,6 @@ export const TaskDetail: React.FC = () => {
               {/* Tab Content */}
               <div className="p-6">
                 <AnimatePresence mode="wait">
-                  {activeTab === 'overview' && (
-                    <motion.div
-                      key="overview"
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 10 }}
-                      transition={{ duration: 0.15 }}
-                      className="space-y-4"
-                    >
-                      <div>
-                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">الوصف</h3>
-                        <div className="prose prose-slate max-w-none text-slate-600 whitespace-pre-line leading-relaxed min-h-[60px] p-4 bg-slate-50 rounded-lg border">
-                            {task.description && task.description.trim() ? (
-                              task.description
-                            ) : (
-                              <span className="text-slate-400 italic">لا يوجد وصف للمهمة.</span>
-                            )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
                   {activeTab === 'subtasks' && isMainTask && (
                     <motion.div
                       key="subtasks"
@@ -810,6 +783,19 @@ export const TaskDetail: React.FC = () => {
                         <i className="fa-solid fa-plus text-sm"></i>
                         <span className="font-medium">إضافة مهمة فرعية</span>
                       </button>
+
+                      {subtasks.length === 0 && (
+                        <div className="text-center py-12">
+                          <i className="fa-regular fa-folder-open text-5xl text-slate-300 mb-3"></i>
+                          <p className="text-slate-500 mb-2">لا توجد مهام فرعية بعد</p>
+                          <button 
+                            onClick={() => setIsAddSubtaskOpen(true)}
+                            className="text-brand-600 hover:underline text-sm"
+                          >
+                            أضف أول مهمة فرعية
+                          </button>
+                        </div>
+                      )}
 
                       {subtasks.map((sub, index) => (
                         <motion.div 
@@ -1135,7 +1121,7 @@ export const TaskDetail: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Quick Actions Card */}
+            {/* Overview Card */}
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1143,48 +1129,65 @@ export const TaskDetail: React.FC = () => {
               className="bg-white rounded-xl shadow-sm border border-slate-200 p-6"
             >
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <i className="fa-solid fa-bolt text-amber-600"></i>
-                إجراءات سريعة
+                <i className="fa-solid fa-info-circle text-brand-600"></i>
+                نظرة عامة
               </h3>
               
-              <div className="space-y-2">
-                {task.parentId && (
-                  <>
-                    <button 
-                      onClick={() => handleUploadClick(task.id)}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-lg transition-colors border border-transparent hover:border-brand-200"
-                    >
-                      <i className="fa-solid fa-paperclip"></i>
-                      <span>رفع مرفقات</span>
-                    </button>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs text-slate-500 font-semibold uppercase block mb-2">الوصف</label>
+                  <div className="prose prose-slate max-w-none text-slate-600 whitespace-pre-line leading-relaxed min-h-[60px] p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    {task.description && task.description.trim() ? (
+                      task.description
+                    ) : (
+                      <span className="text-slate-400 italic">لا يوجد وصف للمهمة.</span>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Quick Actions */}
+                <div className="pt-4 border-t border-slate-200">
+                  <label className="text-xs text-slate-500 font-semibold uppercase block mb-3">إجراءات سريعة</label>
+                  <div className="space-y-2">
+                    {task.parentId && (
+                      <>
+                        <button 
+                          onClick={() => handleUploadClick(task.id)}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-lg transition-colors border border-transparent hover:border-brand-200"
+                        >
+                          <i className="fa-solid fa-paperclip"></i>
+                          <span>رفع مرفقات</span>
+                        </button>
+                        
+                        <button 
+                          onClick={() => setActiveTab('comments')}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:text-red-600 bg-slate-50 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
+                        >
+                          <i className="fa-solid fa-comment-dots"></i>
+                          <span>إضافة ملاحظة</span>
+                        </button>
+                      </>
+                    )}
                     
-                    <button 
-                      onClick={() => setActiveTab('comments')}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:text-red-600 bg-slate-50 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
+                    {isMainTask && (
+                      <button 
+                        onClick={handleEditMainClick}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-lg transition-colors border border-transparent hover:border-brand-200"
+                      >
+                        <i className="fa-solid fa-pen-to-square"></i>
+                        <span>تعديل المهمة</span>
+                      </button>
+                    )}
+                    
+                    <Link
+                      to="/"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-slate-200"
                     >
-                      <i className="fa-solid fa-comment-dots"></i>
-                      <span>إضافة ملاحظة</span>
-                    </button>
-                  </>
-                )}
-                
-                {isMainTask && (
-                  <button 
-                    onClick={handleEditMainClick}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-lg transition-colors border border-transparent hover:border-brand-200"
-                  >
-                    <i className="fa-solid fa-pen-to-square"></i>
-                    <span>تعديل المهمة</span>
-                  </button>
-                )}
-                
-                <Link
-                  to="/"
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-slate-200"
-                >
-                  <i className="fa-solid fa-arrow-right"></i>
-                  <span>العودة للرئيسية</span>
-                </Link>
+                      <i className="fa-solid fa-arrow-right"></i>
+                      <span>العودة للرئيسية</span>
+                    </Link>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>

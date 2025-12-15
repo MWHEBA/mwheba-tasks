@@ -6,57 +6,63 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const AVAILABLE_COLORS: { value: ColorTheme; label: string }[] = [
   { value: 'slate', label: 'رمادي' },
-  { value: 'red', label: 'أحمر' },
+  { value: 'blue', label: 'أزرق' },
+  { value: 'rose', label: 'وردي غامق' },
   { value: 'orange', label: 'برتقالي' },
+  { value: 'cyan', label: 'سماوي' },
+  { value: 'purple', label: 'أرجواني' },
+  { value: 'green', label: 'أخضر' },
+  { value: 'teal', label: 'تركواز' },
+  { value: 'lime', label: 'ليموني' },
+  { value: 'emerald', label: 'زمردي' },
+  { value: 'red', label: 'أحمر' },
+  // Additional colors for customization
   { value: 'amber', label: 'كهرماني' },
   { value: 'yellow', label: 'أصفر' },
-  { value: 'lime', label: 'ليموني' },
-  { value: 'green', label: 'أخضر' },
-  { value: 'emerald', label: 'زمردي' },
-  { value: 'teal', label: 'تركواز' },
-  { value: 'cyan', label: 'سماوي' },
   { value: 'sky', label: 'أزرق فاتح' },
-  { value: 'blue', label: 'أزرق' },
   { value: 'indigo', label: 'نيلي' },
   { value: 'violet', label: 'بنفسجي' },
-  { value: 'purple', label: 'أرجواني' },
   { value: 'fuchsia', label: 'فوشيا' },
   { value: 'pink', label: 'وردي' },
-  { value: 'rose', label: 'وردي غامق' },
 ];
 
 const AVAILABLE_ICONS = [
-  'fa-regular fa-clock',
-  'fa-solid fa-palette',
+  // Currently used icons (from default statuses)
+  'fa-regular fa-clock',        // قيد الانتظار
+  'fa-solid fa-palette',        // جاري التصميم
+  'fa-regular fa-comments',     // يوجد ملاحظات
+  'fa-solid fa-hourglass-half', // في انتظار رد العميل
+  'fa-solid fa-layer-group',    // جاهز للمونتاج
+  'fa-solid fa-check-circle',   // تم المونتاج
+  'fa-solid fa-box-open',       // جاهز للطباعة
+  'fa-solid fa-print',          // جاري الطباعة
+  'fa-solid fa-truck',          // جاهز للتسليم
+  'fa-solid fa-pause-circle',   // معلق
+  'fa-solid fa-flag-checkered', // تم التسليم
+  'fa-solid fa-ban',            // ملغي
+  
+  // Additional workflow icons
   'fa-solid fa-eye',
-  'fa-regular fa-comments',
-  'fa-regular fa-message-lines',
-  'fa-solid fa-hourglass-half',
-  'fa-solid fa-hourglass',
   'fa-solid fa-pen',
   'fa-solid fa-edit',
-  'fa-solid fa-check-double',
-  'fa-solid fa-pen-ruler',
-  'fa-solid fa-layer-group',
+  'fa-solid fa-hourglass',
   'fa-solid fa-layers',
   'fa-solid fa-film',
-  'fa-solid fa-check-circle',
   'fa-regular fa-circle-check',
-  'fa-solid fa-print',
   'fa-solid fa-printer',
-  'fa-solid fa-box-open',
   'fa-solid fa-package',
-  'fa-solid fa-pause-circle',
-  'fa-regular fa-circle-pause',
-  'fa-solid fa-flag-checkered',
+  'fa-regular fa-pause',
   'fa-solid fa-flag',
-  'fa-solid fa-ban',
-  'fa-solid fa-circle-xmark',
-  'fa-solid fa-xmark-circle',
+  'fa-solid fa-xmark',
+  'fa-solid fa-times',
+  
+  // Status indicators
   'fa-solid fa-star',
   'fa-solid fa-fire',
   'fa-solid fa-bolt',
   'fa-solid fa-crown',
+  'fa-solid fa-check',
+  'fa-solid fa-tools',
 ];
 
 export const StatusSettings: React.FC = () => {

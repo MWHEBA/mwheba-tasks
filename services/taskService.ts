@@ -210,7 +210,7 @@ export const TaskService = {
     
     const allStatuses = await StatusService.getAll();
     const hasCommentsStatus = allStatuses.find(s => s.id === 'has_comments');
-    const awaitingClientFeedbackStatus = allStatuses.find(s => s.id === 'awaiting_client_feedback');
+    const awaitingClientResponseStatus = allStatuses.find(s => s.id === 'awaiting_client_response');
 
     console.log('Debug resolveComment:', {
       taskId,
@@ -218,15 +218,15 @@ export const TaskService = {
       allResolved,
       currentStatus: updatedTask.status,
       hasCommentsStatusId: hasCommentsStatus?.id,
-      awaitingClientFeedbackStatusId: awaitingClientFeedbackStatus?.id,
+      awaitingClientResponseStatusId: awaitingClientResponseStatus?.id,
       totalComments: updatedTask.comments.length,
       resolvedComments: updatedTask.comments.filter(c => c.isResolved).length
     });
 
     // لما كل الكومنتات تكون محلولة، تحويل التاسك لـ "في انتظار رد العميل"
-    if (allResolved && updatedTask.status === hasCommentsStatus?.id && awaitingClientFeedbackStatus) {
-      console.log('Changing status to awaiting client feedback');
-      await TaskService.updateStatus(taskId, awaitingClientFeedbackStatus.id);
+    if (allResolved && updatedTask.status === hasCommentsStatus?.id && awaitingClientResponseStatus) {
+      console.log('Changing status to awaiting client response');
+      await TaskService.updateStatus(taskId, awaitingClientResponseStatus.id);
     }
   },
 
