@@ -145,6 +145,14 @@ export const TaskService = {
         parentCommentId: null
       }),
     });
+
+    // تحديث حالة التاسك الفرعية لـ "يوجد ملاحظات" عند إضافة كومنت
+    const allStatuses = await StatusService.getAll();
+    const hasCommentsStatus = allStatuses.find(s => s.id === 'has_comments');
+    
+    if (hasCommentsStatus && task.status !== hasCommentsStatus.id) {
+      await TaskService.updateStatus(taskId, hasCommentsStatus.id);
+    }
   },
 
   addReply: async (taskId: string, commentId: string, text: string): Promise<void> => {
@@ -159,10 +167,11 @@ export const TaskService = {
       }),
     });
 
+    // تحديث حالة التاسك الفرعية لـ "يوجد ملاحظات" عند إضافة رد
     const allStatuses = await StatusService.getAll();
-    const hasCommentsStatus = allStatuses.find(s => s.id === 'Has Comments');
+    const hasCommentsStatus = allStatuses.find(s => s.id === 'has_comments');
     
-    if (hasCommentsStatus) {
+    if (hasCommentsStatus && task.status !== hasCommentsStatus.id) {
       await TaskService.updateStatus(taskId, hasCommentsStatus.id);
     }
 
@@ -190,20 +199,34 @@ export const TaskService = {
 
     // Notifications are now handled by Backend signal handlers
 
+    // انتظار قصير عشان نتأكد إن البيانات اتحدثت في الداتابيس
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     // Refresh task to check all comments
     const updatedTask = await TaskService.getById(taskId);
-    if (!updatedTask) return;
+    if (!updatedTask || !updatedTask.comments) return;
 
-    const allResolved = updatedTask.comments?.every(c => c.isResolved) || false;
+    const allResolved = updatedTask.comments.every(c => c.isResolved);
     
-    const hasCommentsId = 'Has Comments';
-    const editingCompletedId = 'Editing Completed';
-    const pendingId = 'Pending';
     const allStatuses = await StatusService.getAll();
-    const editingStatus = allStatuses.find(s => s.id === editingCompletedId);
+    const hasCommentsStatus = allStatuses.find(s => s.id === 'has_comments');
+    const awaitingClientFeedbackStatus = allStatuses.find(s => s.id === 'awaiting_client_feedback');
 
-    if (allResolved && (updatedTask.status === hasCommentsId || updatedTask.status === pendingId) && editingStatus) {
-      await TaskService.updateStatus(taskId, editingCompletedId);
+    console.log('Debug resolveComment:', {
+      taskId,
+      commentId,
+      allResolved,
+      currentStatus: updatedTask.status,
+      hasCommentsStatusId: hasCommentsStatus?.id,
+      awaitingClientFeedbackStatusId: awaitingClientFeedbackStatus?.id,
+      totalComments: updatedTask.comments.length,
+      resolvedComments: updatedTask.comments.filter(c => c.isResolved).length
+    });
+
+    // لما كل الكومنتات تكون محلولة، تحويل التاسك لـ "في انتظار رد العميل"
+    if (allResolved && updatedTask.status === hasCommentsStatus?.id && awaitingClientFeedbackStatus) {
+      console.log('Changing status to awaiting client feedback');
+      await TaskService.updateStatus(taskId, awaitingClientFeedbackStatus.id);
     }
   },
 

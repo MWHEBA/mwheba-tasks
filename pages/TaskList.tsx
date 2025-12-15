@@ -309,7 +309,7 @@ export const TaskList: React.FC = () => {
 
               <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-slate-800 truncate text-sm">{task.title}</span>
+                      <span className="font-medium text-slate-800 truncate text-sm">{task.client.name} {task.client.number ? `- ${task.client.number}` : ''}</span>
                       <UrgencyBadge level={task.urgency} />
                       {task.deadline && <DeadlineBadge deadline={task.deadline} isFinished={isFinished} size="small" />}
                       {deadlineCountdown && !isFinished && (
@@ -319,7 +319,7 @@ export const TaskList: React.FC = () => {
                       )}
                   </div>
                   <div className="text-xs text-slate-500 flex items-center gap-2 mt-0.5 flex-wrap">
-                      <span className="truncate">{task.client.name}</span>
+                      <span className="truncate">{task.title}</span>
                       {progress && progress.total > 0 && (
                         <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">
                           {progress.completed}/{progress.total}
@@ -391,7 +391,7 @@ export const TaskList: React.FC = () => {
               <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                       <Link to={`/task/${task.id}`} className="font-medium text-slate-900 hover:text-brand-600 truncate transition-colors">
-                          {task.title}
+                          {task.client.name} {task.client.number ? `- ${task.client.number}` : ''}
                       </Link>
                       <UrgencyBadge level={task.urgency} />
                       {task.deadline && <DeadlineBadge deadline={task.deadline} isFinished={isFinished} size="small" />}
@@ -404,8 +404,8 @@ export const TaskList: React.FC = () => {
                   
                   <div className="text-sm text-slate-600 flex items-center gap-2 mt-1.5 flex-wrap">
                       <span className="flex items-center gap-1.5">
-                        <i className="fa-regular fa-building text-xs text-slate-400"></i>
-                        {task.client.name} {task.client.number ? `- ${task.client.number}` : ''}
+                        <i className="fa-solid fa-layer-group text-xs text-slate-400"></i>
+                        {task.title}
                       </span>
                       
                       {task.attachments.length > 0 && (

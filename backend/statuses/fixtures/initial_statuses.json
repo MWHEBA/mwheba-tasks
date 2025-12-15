@@ -30,29 +30,8 @@
       "is_default": false,
       "is_cancelled": false,
       "allowed_next_statuses": [
-        "awaiting_review",
-        "awaiting_materials",
-        "on_hold",
-        "cancelled"
-      ],
-      "created_at": "2025-01-01T00:00:00Z"
-    }
-  },
-  {
-    "model": "statuses.taskstatus",
-    "pk": "awaiting_review",
-    "fields": {
-      "label": "في انتظار المراجعة",
-      "color": "#0ea5e9",
-      "icon": "eye",
-      "order_index": 2,
-      "is_finished": false,
-      "is_default": false,
-      "is_cancelled": false,
-      "allowed_next_statuses": [
         "has_comments",
-        "design_completed",
-        "in_design",
+        "awaiting_client_feedback",
         "on_hold",
         "cancelled"
       ],
@@ -66,13 +45,13 @@
       "label": "يوجد ملاحظات",
       "color": "#f43f5e",
       "icon": "message-square",
-      "order_index": 3,
+      "order_index": 2,
       "is_finished": false,
       "is_default": false,
       "is_cancelled": false,
       "allowed_next_statuses": [
         "in_editing",
-        "awaiting_materials",
+        "awaiting_client_feedback",
         "on_hold",
         "cancelled"
       ],
@@ -81,12 +60,12 @@
   },
   {
     "model": "statuses.taskstatus",
-    "pk": "awaiting_materials",
+    "pk": "awaiting_client_feedback",
     "fields": {
-      "label": "في انتظار المواد",
+      "label": "في انتظار رد العميل",
       "color": "#f97316",
       "icon": "hourglass",
-      "order_index": 4,
+      "order_index": 3,
       "is_finished": false,
       "is_default": false,
       "is_cancelled": false,
@@ -106,34 +85,13 @@
       "label": "جاري التعديل",
       "color": "#f59e0b",
       "icon": "edit",
-      "order_index": 5,
-      "is_finished": false,
-      "is_default": false,
-      "is_cancelled": false,
-      "allowed_next_statuses": [
-        "editing_completed",
-        "awaiting_review",
-        "awaiting_materials",
-        "on_hold",
-        "cancelled"
-      ],
-      "created_at": "2025-01-01T00:00:00Z"
-    }
-  },
-  {
-    "model": "statuses.taskstatus",
-    "pk": "editing_completed",
-    "fields": {
-      "label": "تم التعديل",
-      "color": "#84cc16",
-      "icon": "check-check",
-      "order_index": 6,
+      "order_index": 4,
       "is_finished": false,
       "is_default": false,
       "is_cancelled": false,
       "allowed_next_statuses": [
         "design_completed",
-        "has_comments",
+        "awaiting_client_feedback",
         "on_hold",
         "cancelled"
       ],
@@ -147,28 +105,7 @@
       "label": "تم التصميم",
       "color": "#8b5cf6",
       "icon": "pen-tool",
-      "order_index": 7,
-      "is_finished": false,
-      "is_default": false,
-      "is_cancelled": false,
-      "allowed_next_statuses": [
-        "ready_for_montage",
-        "in_printing",
-        "has_comments",
-        "on_hold",
-        "cancelled"
-      ],
-      "created_at": "2025-01-01T00:00:00Z"
-    }
-  },
-  {
-    "model": "statuses.taskstatus",
-    "pk": "ready_for_montage",
-    "fields": {
-      "label": "جاهز للمونتاج",
-      "color": "#06b6d4",
-      "icon": "layers",
-      "order_index": 8,
+      "order_index": 5,
       "is_finished": false,
       "is_default": false,
       "is_cancelled": false,
@@ -189,7 +126,7 @@
       "label": "جاري المونتاج",
       "color": "#6366f1",
       "icon": "film",
-      "order_index": 9,
+      "order_index": 6,
       "is_finished": false,
       "is_default": false,
       "is_cancelled": false,
@@ -209,7 +146,7 @@
       "label": "تم المونتاج",
       "color": "#a855f7",
       "icon": "check-circle",
-      "order_index": 10,
+      "order_index": 7,
       "is_finished": false,
       "is_default": false,
       "is_cancelled": false,
@@ -230,7 +167,7 @@
       "label": "جاري الطباعة",
       "color": "#14b8a6",
       "icon": "printer",
-      "order_index": 11,
+      "order_index": 8,
       "is_finished": false,
       "is_default": false,
       "is_cancelled": false,
@@ -249,7 +186,7 @@
       "label": "جاهز للتسليم",
       "color": "#22c55e",
       "icon": "package",
-      "order_index": 12,
+      "order_index": 9,
       "is_finished": false,
       "is_default": false,
       "is_cancelled": false,
@@ -268,7 +205,7 @@
       "label": "معلق",
       "color": "#64748b",
       "icon": "pause-circle",
-      "order_index": 13,
+      "order_index": 10,
       "is_finished": false,
       "is_default": false,
       "is_cancelled": false,
@@ -283,7 +220,7 @@
       "label": "تم التسليم",
       "color": "#10b981",
       "icon": "flag",
-      "order_index": 14,
+      "order_index": 11,
       "is_finished": true,
       "is_default": false,
       "is_cancelled": false,
@@ -298,7 +235,7 @@
       "label": "ملغي",
       "color": "#ef4444",
       "icon": "x-circle",
-      "order_index": 15,
+      "order_index": 12,
       "is_finished": true,
       "is_default": false,
       "is_cancelled": true,

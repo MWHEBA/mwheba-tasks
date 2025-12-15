@@ -12,21 +12,17 @@ from .serializers import TaskStatusSerializer
 # Default statuses to be used for reset
 DEFAULT_STATUSES = [
     {'id': 'pending', 'label': 'قيد الانتظار', 'color': 'slate', 'icon': 'fa-regular fa-clock', 'order_index': 0, 'is_finished': False, 'is_default': True, 'allowed_next_statuses': ['in_design', 'on_hold', 'cancelled']},
-    {'id': 'in_design', 'label': 'جاري التصميم', 'color': 'blue', 'icon': 'fa-solid fa-palette', 'order_index': 1, 'is_finished': False, 'allowed_next_statuses': ['awaiting_review', 'awaiting_materials', 'on_hold', 'cancelled']},
-    {'id': 'awaiting_review', 'label': 'في انتظار المراجعة', 'color': 'sky', 'icon': 'fa-solid fa-eye', 'order_index': 2, 'is_finished': False, 'allowed_next_statuses': ['has_comments', 'design_completed', 'in_design', 'on_hold', 'cancelled']},
-    {'id': 'has_comments', 'label': 'يوجد ملاحظات', 'color': 'rose', 'icon': 'fa-regular fa-comments', 'order_index': 3, 'is_finished': False, 'allowed_next_statuses': ['in_editing', 'awaiting_materials', 'on_hold', 'cancelled']},
-    {'id': 'awaiting_materials', 'label': 'في انتظار المواد', 'color': 'orange', 'icon': 'fa-solid fa-hourglass-half', 'order_index': 4, 'is_finished': False, 'allowed_next_statuses': ['in_design', 'has_comments', 'on_hold', 'cancelled']},
-    {'id': 'in_editing', 'label': 'جاري التعديل', 'color': 'amber', 'icon': 'fa-solid fa-pen', 'order_index': 5, 'is_finished': False, 'allowed_next_statuses': ['editing_completed', 'awaiting_review', 'awaiting_materials', 'on_hold', 'cancelled']},
-    {'id': 'editing_completed', 'label': 'تم التعديل', 'color': 'lime', 'icon': 'fa-solid fa-check-double', 'order_index': 6, 'is_finished': False, 'allowed_next_statuses': ['design_completed', 'has_comments', 'on_hold', 'cancelled']},
-    {'id': 'design_completed', 'label': 'تم التصميم', 'color': 'violet', 'icon': 'fa-solid fa-pen-ruler', 'order_index': 7, 'is_finished': False, 'allowed_next_statuses': ['ready_for_montage', 'in_printing', 'has_comments', 'on_hold', 'cancelled']},
-    {'id': 'ready_for_montage', 'label': 'جاهز للمونتاج', 'color': 'cyan', 'icon': 'fa-solid fa-layer-group', 'order_index': 8, 'is_finished': False, 'allowed_next_statuses': ['in_montage', 'in_printing', 'has_comments', 'on_hold', 'cancelled']},
-    {'id': 'in_montage', 'label': 'جاري المونتاج', 'color': 'indigo', 'icon': 'fa-solid fa-film', 'order_index': 9, 'is_finished': False, 'allowed_next_statuses': ['montage_completed', 'has_comments', 'on_hold', 'cancelled']},
-    {'id': 'montage_completed', 'label': 'تم المونتاج', 'color': 'purple', 'icon': 'fa-solid fa-check-circle', 'order_index': 10, 'is_finished': False, 'allowed_next_statuses': ['in_printing', 'ready_for_delivery', 'has_comments', 'on_hold', 'cancelled']},
-    {'id': 'in_printing', 'label': 'جاري الطباعة', 'color': 'teal', 'icon': 'fa-solid fa-print', 'order_index': 11, 'is_finished': False, 'allowed_next_statuses': ['ready_for_delivery', 'on_hold', 'cancelled']},
-    {'id': 'ready_for_delivery', 'label': 'جاهز للتسليم', 'color': 'green', 'icon': 'fa-solid fa-box-open', 'order_index': 12, 'is_finished': False, 'allowed_next_statuses': ['delivered', 'on_hold', 'cancelled']},
-    {'id': 'on_hold', 'label': 'معلق', 'color': 'slate', 'icon': 'fa-solid fa-pause-circle', 'order_index': 13, 'is_finished': False, 'allowed_next_statuses': []},
-    {'id': 'delivered', 'label': 'تم التسليم', 'color': 'emerald', 'icon': 'fa-solid fa-flag-checkered', 'order_index': 14, 'is_finished': True, 'allowed_next_statuses': []},
-    {'id': 'cancelled', 'label': 'ملغي', 'color': 'red', 'icon': 'fa-solid fa-ban', 'order_index': 15, 'is_finished': True, 'is_cancelled': True, 'allowed_next_statuses': []},
+    {'id': 'in_design', 'label': 'جاري التصميم', 'color': 'blue', 'icon': 'fa-solid fa-palette', 'order_index': 1, 'is_finished': False, 'allowed_next_statuses': ['has_comments', 'awaiting_client_response', 'on_hold', 'cancelled']},
+    {'id': 'has_comments', 'label': 'يوجد ملاحظات', 'color': 'rose', 'icon': 'fa-regular fa-comments', 'order_index': 2, 'is_finished': False, 'allowed_next_statuses': ['in_design', 'awaiting_client_response', 'on_hold', 'cancelled']},
+    {'id': 'awaiting_client_response', 'label': 'في انتظار رد العميل', 'color': 'orange', 'icon': 'fa-solid fa-hourglass-half', 'order_index': 3, 'is_finished': False, 'allowed_next_statuses': ['in_design', 'has_comments', 'ready_for_montage', 'on_hold', 'cancelled']},
+    {'id': 'ready_for_montage', 'label': 'جاهز للمونتاج', 'color': 'cyan', 'icon': 'fa-solid fa-layer-group', 'order_index': 4, 'is_finished': False, 'allowed_next_statuses': ['montage_completed', 'has_comments', 'on_hold', 'cancelled']},
+    {'id': 'montage_completed', 'label': 'تم المونتاج', 'color': 'purple', 'icon': 'fa-solid fa-check-circle', 'order_index': 5, 'is_finished': False, 'allowed_next_statuses': ['ready_for_printing', 'has_comments', 'on_hold', 'cancelled']},
+    {'id': 'ready_for_printing', 'label': 'جاهز للطباعة', 'color': 'green', 'icon': 'fa-solid fa-box-open', 'order_index': 6, 'is_finished': False, 'allowed_next_statuses': ['in_printing', 'on_hold', 'cancelled']},
+    {'id': 'in_printing', 'label': 'جاري الطباعة', 'color': 'teal', 'icon': 'fa-solid fa-print', 'order_index': 7, 'is_finished': False, 'allowed_next_statuses': ['ready_for_delivery', 'on_hold', 'cancelled']},
+    {'id': 'ready_for_delivery', 'label': 'جاهز للتسليم', 'color': 'lime', 'icon': 'fa-solid fa-truck', 'order_index': 8, 'is_finished': False, 'allowed_next_statuses': ['delivered', 'on_hold', 'cancelled']},
+    {'id': 'on_hold', 'label': 'معلق', 'color': 'slate', 'icon': 'fa-solid fa-pause-circle', 'order_index': 9, 'is_finished': False, 'allowed_next_statuses': []},
+    {'id': 'delivered', 'label': 'تم التسليم', 'color': 'emerald', 'icon': 'fa-solid fa-flag-checkered', 'order_index': 10, 'is_finished': True, 'allowed_next_statuses': []},
+    {'id': 'cancelled', 'label': 'ملغي', 'color': 'red', 'icon': 'fa-solid fa-ban', 'order_index': 11, 'is_finished': True, 'is_cancelled': True, 'allowed_next_statuses': []},
 ]
 
 
@@ -73,7 +69,7 @@ class TaskStatusViewSet(viewsets.ModelViewSet):
                 'order_index': 0,
                 'is_finished': False,
                 'is_default': True,
-                'allowed_next_statuses': ['In Design', 'On Hold', 'Cancelled']
+                'allowed_next_statuses': ['in_design', 'on_hold', 'cancelled']
             }
         )
         
