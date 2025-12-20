@@ -5,6 +5,7 @@
 
 import { Task, Urgency, TaskStatus } from '../types';
 import { isOverdue } from './dateUtils';
+import { AuthService } from '../services/authService';
 
 /**
  * Filter type for quick filters
@@ -62,6 +63,54 @@ export const filterTasksByClient = (tasks: Task[], clientId: string): Task[] => 
  */
 export const filterTasksByStatus = (tasks: Task[], statusId: string): Task[] => {
   return tasks.filter(task => task.status === statusId);
+};
+
+/**
+ * Filter tasks for designer role - show main tasks that have relevant subtasks or are in relevant statuses
+ * Designer can see:
+ * 1. Main tasks in designer-relevant statuses
+ * 2. Main tasks that have subtasks in designer-relevant statuses (even if main task is in different status)
+ * 
+ * Designer-relevant statuses:
+ * - قيد الانتظار (pending)
+ * - جاري التصميم (in_design) 
+ * - ملحوظات العميل (has_comments)
+ * - ملحوظات المصمم (designer_notes)
+ * - في انتظار رد العميل (awaiting_client_response)
+ * - جاهز للمونتاج (ready_for_montage)
+ * - تم المونتاج (montage_completed)
+ * 
+ * @param tasks - Array of all tasks (main and subtasks)
+ * @returns Array of main tasks that designer should see
+ */
+export const filterTasksForDesigner = (tasks: Task[]): Task[] => {
+  // الحالات المسموح للمصمم برؤيتها
+  const designerAllowedStatuses = [
+    'pending',                    // قيد الانتظار
+    'in_design',                  // جاري التصميم
+    'has_comments',               // ملحوظات العميل
+    'designer_notes',             // ملحوظات المصمم
+    'awaiting_client_response',   // في انتظار رد العميل
+    'ready_for_montage',          // جاهز للمونتاج
+    'montage_completed'           // تم المونتاج
+  ];
+
+  const mainTasks = tasks.filter(task => !task.parentId);
+  
+  return mainTasks.filter(mainTask => {
+    // إذا كانت المهمة الرئيسية نفسها في حالة مسموحة للمصمم
+    if (designerAllowedStatuses.includes(mainTask.status)) {
+      return true;
+    }
+    
+    // إذا كان فيه مهام فرعية في حالات مسموحة للمصمم
+    const subtasks = tasks.filter(task => task.parentId === mainTask.id);
+    const hasRelevantSubtasks = subtasks.some(subtask => 
+      designerAllowedStatuses.includes(subtask.status)
+    );
+    
+    return hasRelevantSubtasks;
+  });
 };
 
 /**
@@ -167,10 +216,16 @@ export const applyFilters = (
     statusId?: string;
     mainTasksOnly?: boolean;
     parentId?: string;
+    designerOnly?: boolean;
   },
   statuses: TaskStatus[]
 ): Task[] => {
   let filtered = [...tasks];
+  
+  // Apply designer filter first if user is designer
+  if (filters.designerOnly || AuthService.isDesigner()) {
+    filtered = filterTasksForDesigner(filtered);
+  }
   
   if (filters.overdue) {
     filtered = filterOverdueTasks(filtered, statuses);

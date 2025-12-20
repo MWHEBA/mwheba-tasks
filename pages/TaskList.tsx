@@ -10,9 +10,11 @@ import { ProgressBar } from '../components/ProgressBar';
 import { QuickFilters, FilterType } from '../components/QuickFilters';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { formatRelativeDate } from '../utils/dateUtils';
+import { filterTasksForDesigner } from '../utils/filterUtils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTaskContext } from '../contexts/TaskContext';
 import { Permissions } from '../utils/permissions';
+import { AuthService } from '../services/authService';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 
 type SortOption = 'default' | 'deadline' | 'urgency';
@@ -57,7 +59,14 @@ export const TaskList: React.FC = () => {
 
   // Calculate Dashboard Stats
   const dashboardStats = useMemo(() => {
-    const allRootTasks = contextTasks.filter(t => !t.parentId);
+    let allRootTasks = contextTasks.filter(t => !t.parentId);
+    
+    // Apply designer filter if user is designer
+    // المصمم يشوف إحصائيات بس للمهام المخصصة له
+    if (AuthService.isDesigner()) {
+      allRootTasks = filterTasksForDesigner(contextTasks); // Pass all tasks, not just root tasks
+    }
+    
     const now = Date.now();
     
     const total = allRootTasks.length;
@@ -109,7 +118,13 @@ export const TaskList: React.FC = () => {
 
   // Apply search filter
   const searchFiltered = useMemo(() => {
-    const allRootTasks = contextTasks.filter(t => !t.parentId);
+    let allRootTasks = contextTasks.filter(t => !t.parentId);
+    
+    // Apply designer filter if user is designer
+    // المصمم يشوف المهام الرئيسية اللي ليها علاقة بشغله (حتى لو المهمة الرئيسية في حالة تانية)
+    if (AuthService.isDesigner()) {
+      allRootTasks = filterTasksForDesigner(contextTasks); // Pass all tasks, not just root tasks
+    }
     
     if (!searchQuery.trim()) return allRootTasks;
     
@@ -194,10 +209,27 @@ export const TaskList: React.FC = () => {
     return counts;
   }, [statuses, getTasksByStatus]);
 
-  const activeStatuses = useMemo(() => 
-    statuses.filter(s => tasksByStatusCount[s.id] > 0),
-    [statuses, tasksByStatusCount]
-  );
+  const activeStatuses = useMemo(() => {
+    let filteredStatuses = statuses.filter(s => tasksByStatusCount[s.id] > 0);
+    
+    // If user is designer, only show designer-relevant statuses
+    // المصمم يشوف بس الحالات المخصصة له في الفلاتر
+    if (AuthService.isDesigner()) {
+      const designerAllowedStatuses = [
+        'pending',                    // قيد الانتظار
+        'in_design',                  // جاري التصميم
+        'has_comments',               // ملحوظات العميل
+        'designer_notes',             // ملحوظات المصمم
+        'awaiting_client_response',   // في انتظار رد العميل
+        'ready_for_montage',          // جاهز للمونتاج
+        'montage_completed'           // تم المونتاج
+      ];
+      
+      filteredStatuses = filteredStatuses.filter(s => designerAllowedStatuses.includes(s.id));
+    }
+    
+    return filteredStatuses;
+  }, [statuses, tasksByStatusCount]);
 
   const handleQuickFilterChange = useCallback((filter: FilterType | null, clientId?: string) => {
     setActiveQuickFilter(filter);
@@ -592,16 +624,25 @@ export const TaskList: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 className="text-2xl font-semibold text-slate-900">لوحة المهام</h1>
-            <p className="text-slate-600 mt-1 text-sm">تتبع سير العمل من التصميم إلى التسليم</p>
+            <h1 className="text-2xl font-semibold text-slate-900">
+              {AuthService.isDesigner() ? 'مهام التصميم' : 'لوحة المهام'}
+            </h1>
+            <p className="text-slate-600 mt-1 text-sm">
+              {AuthService.isDesigner() 
+                ? 'المهام المخصصة لك كمصمم - من التصميم إلى المونتاج'
+                : 'تتبع سير العمل من التصميم إلى التسليم'
+              }
+            </p>
         </div>
-        <Link 
-            to="/new" 
-            className="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-sm hover:shadow"
-        >
-            <i className="fa-solid fa-plus text-sm"></i>
-            مهمة جديدة
-        </Link>
+        {Permissions.canCreateTask() && (
+          <Link 
+              to="/new" 
+              className="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-sm hover:shadow"
+          >
+              <i className="fa-solid fa-plus text-sm"></i>
+              مهمة جديدة
+          </Link>
+        )}
       </div>
 
       {/* Dashboard Stats */}
