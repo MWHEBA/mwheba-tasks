@@ -6,17 +6,64 @@
 
 /* Base styles and CSS variables */
 :root {
+  /* Transitions */
   --transition-fast: 120ms;
   --transition-normal: 200ms;
   --transition-slow: 300ms;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
-  --shadow-md: 0 2px 4px -1px rgb(0 0 0 / 0.06);
-  --shadow-lg: 0 4px 8px -2px rgb(0 0 0 / 0.08);
+
+  /* Colors */
   --bg-subtle: #fafbfc;
   --border-light: #e8eaed;
+  --border-medium: #d1d5db;
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
   --text-tertiary: #9ca3af;
+  
+  --color-white: #ffffff;
+  --color-dark: #1e293b;
+  --color-sky: #0ea5e9;
+  --color-sky-dark: #0284c7;
+  --color-amber: #f59e0b;
+  --color-red: #ef4444;
+  --color-emerald: #10b981;
+  
+  /* Background subtle colors (flat instead of gradients) */
+  --bg-white: #ffffff;
+  --bg-slate-50: #f8fafc;
+  --bg-slate-100: #f1f5f9;
+  --bg-slate-200: #e2e8f0;
+  --bg-slate-300: #cbd5e1;
+  --bg-slate-400: #94a3b8;
+  --bg-sky-subtle: #f0f9ff;
+  --border-sky-subtle: #e0f2fe;
+  
+  /* Alpha-based colors defined as CSS variables */
+  --color-sky-alpha-10: rgba(14, 165, 233, 0.1);
+  --color-sky-alpha-15: rgba(14, 165, 233, 0.15);
+  --color-sky-alpha-20: rgba(14, 165, 233, 0.2);
+  --color-sky-alpha-8: rgba(14, 165, 233, 0.08);
+  --color-amber-alpha-10: rgba(245, 158, 11, 0.1);
+  --color-amber-alpha-20: rgba(245, 158, 11, 0.2);
+  --color-red-alpha-10: rgba(239, 68, 68, 0.1);
+  --color-emerald-alpha-20: rgba(16, 185, 129, 0.2);
+  --color-gray-alpha-20: rgba(107, 114, 128, 0.2);
+  
+  --color-white-alpha-20: rgba(255, 255, 255, 0.2);
+  --color-white-alpha-30: rgba(255, 255, 255, 0.3);
+  
+  --shadow-sm-color: rgba(0, 0, 0, 0.03);
+  --shadow-md-color: rgba(0, 0, 0, 0.06);
+  --shadow-lg-color: rgba(0, 0, 0, 0.08);
+  --shadow-dark-alpha-10: rgba(0, 0, 0, 0.1);
+  --shadow-dark-alpha-5: rgba(0, 0, 0, 0.05);
+  --shadow-dark-alpha-7: rgba(0, 0, 0, 0.07);
+  --shadow-dark-alpha-4: rgba(0, 0, 0, 0.04);
+  --shadow-dark-alpha-2: rgba(0, 0, 0, 0.02);
+
+  /* Shadows using variables */
+  --shadow-sm: 0 1px 2px 0 var(--shadow-sm-color);
+  --shadow-md: 0 2px 4px -1px var(--shadow-md-color);
+  --shadow-lg: 0 4px 8px -2px var(--shadow-lg-color);
 }
 
 /* Smooth transitions for all interactive elements */
@@ -83,15 +130,6 @@ body {
   }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
 /* Animation utility classes */
 .animate-fade-in {
   animation: fadeIn var(--transition-normal) ease-out;
@@ -113,11 +151,10 @@ body {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Loading skeleton */
+/* Loading skeleton - flat color with pulse animation (no gradients) */
 .skeleton {
-  background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
+  background-color: var(--bg-slate-200);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   border-radius: 0.5rem;
 }
 
@@ -127,42 +164,42 @@ body {
 }
 
 .template-editor-highlight .placeholder-valid {
-  color: #0ea5e9;
+  color: var(--color-sky);
   font-weight: 600;
-  background-color: rgba(14, 165, 233, 0.1);
+  background-color: var(--color-sky-alpha-10);
   padding: 0 2px;
   border-radius: 2px;
 }
 
 .template-editor-highlight .placeholder-warning {
-  color: #f59e0b;
+  color: var(--color-amber);
   font-weight: 600;
-  background-color: rgba(245, 158, 11, 0.1);
+  background-color: var(--color-amber-alpha-10);
   padding: 0 2px;
   border-radius: 2px;
 }
 
 .template-editor-highlight .placeholder-error {
-  color: #ef4444;
+  color: var(--color-red);
   font-weight: 600;
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: var(--color-red-alpha-10);
   padding: 0 2px;
   border-radius: 2px;
   text-decoration: wavy underline;
 }
 
-/* WhatsApp-like message bubble */
+/* WhatsApp-like message bubble - flat background (no gradients) */
 .whatsapp-message {
   position: relative;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background-color: var(--bg-white);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px var(--shadow-dark-alpha-5), 0 2px 4px var(--shadow-dark-alpha-5);
   padding: 1rem;
   transition: all var(--transition-normal);
 }
 
 .whatsapp-message:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px var(--shadow-dark-alpha-7), 0 2px 4px var(--shadow-dark-alpha-6);
   transform: translateY(-1px);
 }
 
@@ -175,7 +212,7 @@ body {
   height: 0;
   border-style: solid;
   border-width: 0 0 12px 12px;
-  border-color: transparent transparent #ffffff transparent;
+  border-color: transparent transparent var(--color-white) transparent;
 }
 
 /* Tooltip styles */
@@ -189,8 +226,8 @@ body {
   opacity: 0;
   position: absolute;
   z-index: 50;
-  background-color: #1e293b;
-  color: #ffffff;
+  background-color: var(--color-dark);
+  color: var(--color-white);
   text-align: center;
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
@@ -201,7 +238,7 @@ body {
   left: 50%;
   transform: translateX(-50%) translateY(4px);
   transition: opacity var(--transition-normal), transform var(--transition-normal), visibility var(--transition-normal);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  box-shadow: 0 4px 6px -1px var(--shadow-dark-alpha-10);
   pointer-events: none;
 }
 
@@ -213,7 +250,7 @@ body {
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #1e293b transparent transparent transparent;
+  border-color: var(--color-dark) transparent transparent transparent;
 }
 
 .tooltip:hover .tooltip-text,
@@ -225,7 +262,7 @@ body {
 
 /* Focus visible styles for accessibility */
 *:focus-visible {
-  outline: 2px solid #0ea5e9;
+  outline: 2px solid var(--color-sky);
   outline-offset: 2px;
   border-radius: 0.25rem;
 }
@@ -235,31 +272,31 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #0ea5e9;
+  outline: 2px solid var(--color-sky);
   outline-offset: 2px;
 }
 
 /* Enhanced focus indicators for interactive elements */
 button:focus-visible,
 [role="button"]:focus-visible {
-  outline: 2px solid #0ea5e9;
+  outline: 2px solid var(--color-sky);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+  box-shadow: 0 0 0 4px var(--color-sky-alpha-10);
 }
 
 /* Focus indicators for filter buttons */
 button[aria-pressed]:focus-visible {
-  outline: 2px solid #0ea5e9;
+  outline: 2px solid var(--color-sky);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+  box-shadow: 0 0 0 4px var(--color-sky-alpha-15);
 }
 
 /* Focus indicators for menu items */
 [role="menuitem"]:focus-visible,
 [role="tab"]:focus-visible {
-  outline: 2px solid #0ea5e9;
+  outline: 2px solid var(--color-sky);
   outline-offset: -2px;
-  box-shadow: inset 0 0 0 2px #0ea5e9;
+  box-shadow: inset 0 0 0 2px var(--color-sky);
 }
 
 /* Focus indicators for dialog/modal elements */
@@ -270,8 +307,8 @@ button[aria-pressed]:focus-visible {
 /* Ensure focus is visible on dark backgrounds */
 .bg-black button:focus-visible,
 .bg-slate-900 button:focus-visible {
-  outline-color: #ffffff;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+  outline-color: var(--color-white);
+  box-shadow: 0 0 0 4px var(--color-white-alpha-20);
 }
 
 /* High contrast focus indicators */
@@ -284,7 +321,7 @@ button[aria-pressed]:focus-visible {
   button:focus-visible,
   [role="button"]:focus-visible {
     outline-width: 3px;
-    box-shadow: 0 0 0 6px rgba(14, 165, 233, 0.2);
+    box-shadow: 0 0 0 6px var(--color-sky-alpha-20);
   }
 }
 
@@ -293,8 +330,8 @@ button[aria-pressed]:focus-visible {
   position: absolute;
   top: -40px;
   left: 0;
-  background: #0ea5e9;
-  color: white;
+  background-color: var(--color-sky);
+  color: var(--color-white);
   padding: 8px;
   text-decoration: none;
   border-radius: 0 0 4px 0;
@@ -310,7 +347,7 @@ button[aria-pressed]:focus-visible {
   display: inline-block;
   width: 1rem;
   height: 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid var(--color-white-alpha-30);
   border-radius: 50%;
   border-top-color: currentColor;
   animation: spin 0.6s linear infinite;
@@ -338,7 +375,7 @@ button.loading::after {
   left: 50%;
   margin-left: -0.5rem;
   margin-top: -0.5rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid var(--color-white-alpha-30);
   border-radius: 50%;
   border-top-color: currentColor;
   animation: spin 0.6s linear infinite;
@@ -356,15 +393,15 @@ button.loading::after {
 
 /* Professional card styles */
 .professional-card {
-  background: white;
+  background-color: var(--color-white);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   transition: all var(--transition-normal);
 }
 
 .professional-card:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-color: var(--border-medium);
+  box-shadow: 0 2px 8px var(--shadow-dark-alpha-4);
 }
 
 /* Variable button hover effect */
@@ -381,7 +418,7 @@ button.loading::after {
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(14, 165, 233, 0.1);
+  background-color: var(--color-sky-alpha-10);
   transform: translate(-50%, -50%);
   transition: width var(--transition-normal), height var(--transition-normal);
 }
@@ -438,28 +475,23 @@ button.loading::after {
   }
 }
 
-/* Dark mode support (future enhancement) */
-@media (prefers-color-scheme: dark) {
-  /* Placeholder for dark mode styles */
-}
-
 /* Custom scrollbar for template editor */
 .template-editor-scroll::-webkit-scrollbar {
   width: 6px;
 }
 
 .template-editor-scroll::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background-color: var(--bg-slate-100);
   border-radius: 3px;
 }
 
 .template-editor-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background-color: var(--bg-slate-300);
   border-radius: 3px;
 }
 
 .template-editor-scroll::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background-color: var(--bg-slate-400);
 }
 
 /* Validation feedback animations */
@@ -502,15 +534,15 @@ button.loading::after {
 
 /* Subtle card elevation */
 .card-professional {
-  background: white;
+  background-color: var(--color-white);
   border: 1px solid var(--border-light);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 2px var(--shadow-dark-alpha-2);
   transition: all var(--transition-normal);
 }
 
 .card-professional:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  border-color: var(--border-medium);
+  box-shadow: 0 2px 4px var(--shadow-dark-alpha-4);
 }
 
 /* Refined text colors */
@@ -546,20 +578,20 @@ button.loading::after {
 
 .btn-professional:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 4px var(--shadow-dark-alpha-8);
 }
 
 /* Calm color palette overrides */
 .bg-brand-subtle {
-  background-color: #f0f9ff;
+  background-color: var(--bg-sky-subtle);
 }
 
 .border-brand-subtle {
-  border-color: #e0f2fe;
+  border-color: var(--border-sky-subtle);
 }
 
 .text-brand-calm {
-  color: #0284c7;
+  color: var(--color-sky-dark);
 }
 
 /* Refined spacing */
@@ -574,7 +606,7 @@ button.loading::after {
 
 .hover-lift:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px var(--shadow-dark-alpha-4);
 }
 
 /* Professional input styles */
@@ -591,14 +623,14 @@ input[type="email"]:focus,
 input[type="search"]:focus,
 textarea:focus,
 select:focus {
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.08);
+  box-shadow: 0 0 0 3px var(--color-sky-alpha-8);
 }
 
 /* Calm notification styles */
 .notification-calm {
-  background: white;
+  background-color: var(--color-white);
   border: 1px solid var(--border-light);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px var(--shadow-dark-alpha-8);
   border-radius: 0.5rem;
 }
 
@@ -611,16 +643,16 @@ select:focus {
 }
 
 .status-indicator.active {
-  background-color: #10b981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  background-color: var(--color-emerald);
+  box-shadow: 0 0 0 2px var(--color-emerald-alpha-20);
 }
 
 .status-indicator.pending {
-  background-color: #f59e0b;
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+  background-color: var(--color-amber);
+  box-shadow: 0 0 0 2px var(--color-amber-alpha-20);
 }
 
 .status-indicator.inactive {
-  background-color: #6b7280;
-  box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2);
+  background-color: var(--text-secondary);
+  box-shadow: 0 0 0 2px var(--color-gray-alpha-20);
 }

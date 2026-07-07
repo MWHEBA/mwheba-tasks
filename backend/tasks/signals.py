@@ -20,6 +20,44 @@ from notifications.models import NotificationLog
 logger = logging.getLogger(__name__)
 
 
+# Helper function to send and log WhatsApp notifications asynchronously
+def _send_and_log_notification_async(phone: str, api_key: str, message: str, task_id: str, template_type: str):
+    import threading
+    def target():
+        from django.db import connection
+        try:
+            # Send notification
+            success = NotificationService.send_notification(phone, api_key, message)
+            # Log the notification attempt
+            # Import locally to avoid app registry or circular import issues
+            from notifications.models import NotificationLog
+            from tasks.models import Task
+            try:
+                task = Task.objects.get(id=task_id)
+                NotificationLog.objects.create(
+                    id=str(uuid.uuid4()),
+                    task=task,
+                    recipient_number=phone,
+                    message=message,
+                    template_type=template_type,
+                    success=success,
+                    error_message=None if success else 'Failed to send notification'
+                )
+                logger.info(
+                    f"Notification logged asynchronously for task {task_id} to {phone}: "
+                    f"{'Success' if success else 'Failed'}"
+                )
+            except Exception as log_ex:
+                logger.error(f"Error logging notification in thread: {log_ex}")
+        except Exception as e:
+            logger.error(f"Error in async notification thread: {e}")
+        finally:
+            # Clean up database connection in this thread to prevent leaks
+            connection.close()
+
+    threading.Thread(target=target, daemon=True).start()
+
+
 # Track original is_resolved state for comments
 _comment_original_states = {}
 
@@ -85,7 +123,7 @@ def notify_task_created(sender, instance, created, **kwargs):
         # Render message
         message = NotificationService.render_template('NEW_PROJECT', context, custom_templates)
         
-        # Send to all recipients and log each attempt
+        # Send to all recipients asynchronously
         for recipient in whatsapp_numbers:
             # Support both 'phone' and 'number' keys for backward compatibility
             phone = recipient.get('phone', '') or recipient.get('number', '')
@@ -94,24 +132,7 @@ def notify_task_created(sender, instance, created, **kwargs):
             if not phone or not api_key:
                 continue
             
-            success = NotificationService.send_notification(phone, api_key, message)
-            
-            # Log the notification attempt
-            log_id = str(uuid.uuid4())
-            NotificationLog.objects.create(
-                id=log_id,
-                task=instance,
-                recipient_number=phone,
-                message=message,
-                template_type='NEW_PROJECT',
-                success=success,
-                error_message=None if success else 'Failed to send notification'
-            )
-            
-            logger.info(
-                f"Notification logged for task {instance.id} to {phone}: "
-                f"{'Success' if success else 'Failed'}"
-            )
+            _send_and_log_notification_async(phone, api_key, message, instance.id, 'NEW_PROJECT')
     
     except Exception as e:
         logger.error(f"Error sending task creation notification for task {instance.id}: {str(e)}")
@@ -170,7 +191,7 @@ def notify_status_changed(sender, instance, created, **kwargs):
         # Render message
         message = NotificationService.render_template('STATUS_CHANGE', context, custom_templates)
         
-        # Send to all recipients and log each attempt
+        # Send to all recipients asynchronously
         for recipient in whatsapp_numbers:
             # Support both 'phone' and 'number' keys for backward compatibility
             phone = recipient.get('phone', '') or recipient.get('number', '')
@@ -179,24 +200,7 @@ def notify_status_changed(sender, instance, created, **kwargs):
             if not phone or not api_key:
                 continue
             
-            success = NotificationService.send_notification(phone, api_key, message)
-            
-            # Log the notification attempt
-            log_id = str(uuid.uuid4())
-            NotificationLog.objects.create(
-                id=log_id,
-                task=instance,
-                recipient_number=phone,
-                message=message,
-                template_type='STATUS_CHANGE',
-                success=success,
-                error_message=None if success else 'Failed to send notification'
-            )
-            
-            logger.info(
-                f"Status change notification logged for task {instance.id} to {phone}: "
-                f"{'Success' if success else 'Failed'}"
-            )
+            _send_and_log_notification_async(phone, api_key, message, instance.id, 'STATUS_CHANGE')
     
     except Exception as e:
         logger.error(f"Error sending status change notification for task {instance.id}: {str(e)}")
@@ -260,7 +264,7 @@ def notify_comment_added(sender, instance, created, **kwargs):
         # Render message
         message = NotificationService.render_template('COMMENT_ADDED', context, custom_templates)
         
-        # Send to all recipients and log each attempt
+        # Send to all recipients asynchronously
         for recipient in whatsapp_numbers:
             # Support both 'phone' and 'number' keys for backward compatibility
             phone = recipient.get('phone', '') or recipient.get('number', '')
@@ -269,24 +273,7 @@ def notify_comment_added(sender, instance, created, **kwargs):
             if not phone or not api_key:
                 continue
             
-            success = NotificationService.send_notification(phone, api_key, message)
-            
-            # Log the notification attempt
-            log_id = str(uuid.uuid4())
-            NotificationLog.objects.create(
-                id=log_id,
-                task=instance.task,
-                recipient_number=phone,
-                message=message,
-                template_type='COMMENT_ADDED',
-                success=success,
-                error_message=None if success else 'Failed to send notification'
-            )
-            
-            logger.info(
-                f"Comment notification logged for task {instance.task.id} to {phone}: "
-                f"{'Success' if success else 'Failed'}"
-            )
+            _send_and_log_notification_async(phone, api_key, message, instance.task.id, 'COMMENT_ADDED')
     
     except Exception as e:
         logger.error(f"Error sending comment notification for comment {instance.id}: {str(e)}")
@@ -338,7 +325,7 @@ def notify_comment_resolved(sender, instance, created, **kwargs):
         # Render message
         message = NotificationService.render_template('COMMENT_RESOLVED', context, custom_templates)
         
-        # Send to all recipients and log each attempt
+        # Send to all recipients asynchronously
         for recipient in whatsapp_numbers:
             # Support both 'phone' and 'number' keys for backward compatibility
             phone = recipient.get('phone', '') or recipient.get('number', '')
@@ -347,24 +334,7 @@ def notify_comment_resolved(sender, instance, created, **kwargs):
             if not phone or not api_key:
                 continue
             
-            success = NotificationService.send_notification(phone, api_key, message)
-            
-            # Log the notification attempt
-            log_id = str(uuid.uuid4())
-            NotificationLog.objects.create(
-                id=log_id,
-                task=instance.task,
-                recipient_number=phone,
-                message=message,
-                template_type='commentResolved',
-                success=success,
-                error_message=None if success else 'Failed to send notification'
-            )
-            
-            logger.info(
-                f"Comment resolution notification logged for task {instance.task.id} to {phone}: "
-                f"{'Success' if success else 'Failed'}"
-            )
+            _send_and_log_notification_async(phone, api_key, message, instance.task.id, 'commentResolved')
     
     except Exception as e:
         logger.error(f"Error sending comment resolution notification for comment {instance.id}: {str(e)}")
@@ -421,7 +391,7 @@ def notify_attachment_added(sender, instance, created, **kwargs):
         # Render message
         message = NotificationService.render_template('ATTACHMENT_ADDED', context, custom_templates)
         
-        # Send to all recipients and log each attempt
+        # Send to all recipients asynchronously
         for recipient in whatsapp_numbers:
             # Support both 'phone' and 'number' keys for backward compatibility
             phone = recipient.get('phone', '') or recipient.get('number', '')
@@ -430,24 +400,7 @@ def notify_attachment_added(sender, instance, created, **kwargs):
             if not phone or not api_key:
                 continue
             
-            success = NotificationService.send_notification(phone, api_key, message)
-            
-            # Log the notification attempt
-            log_id = str(uuid.uuid4())
-            NotificationLog.objects.create(
-                id=log_id,
-                task=instance.task,
-                recipient_number=phone,
-                message=message,
-                template_type='attachmentAdded',
-                success=success,
-                error_message=None if success else 'Failed to send notification'
-            )
-            
-            logger.info(
-                f"Attachment notification logged for task {instance.task.id} to {phone}: "
-                f"{'Success' if success else 'Failed'}"
-            )
+            _send_and_log_notification_async(phone, api_key, message, instance.task.id, 'attachmentAdded')
     
     except Exception as e:
         logger.error(f"Error sending attachment notification for attachment {instance.id}: {str(e)}")

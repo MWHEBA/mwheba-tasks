@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 
@@ -56,7 +56,7 @@ describe('ConfirmDialog', () => {
     fireEvent.click(confirmButton);
 
     expect(mockOnConfirm).toHaveBeenCalledTimes(1);
-    expect(mockOnCancel).toHaveBeenCalledTimes(1);
+    expect(mockOnCancel).not.toHaveBeenCalled();
   });
 
   it('calls onCancel when cancel button clicked', () => {

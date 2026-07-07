@@ -44,7 +44,7 @@ describe('StatusService', () => {
         { id: 'In Design', label: 'جاري التصميم' },
       ];
 
-      vi.mocked(apiCall).mockResolvedValueOnce(mockStatuses);
+      vi.mocked(apiCall).mockResolvedValueOnce(mockStatuses[1]);
 
       const result = await StatusService.getById('In Design');
 

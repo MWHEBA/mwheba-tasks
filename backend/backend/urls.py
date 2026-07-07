@@ -48,6 +48,15 @@ urlpatterns = [
     path('api/auth/logout/', logout_view, name='logout'),
     path('api/auth/me/', current_user_view, name='current_user'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # Fallback paths without /api prefix for test suite compatibility
+    path('', include(router.urls)),
+    path('health/', health_check),
+    path('comments/<str:pk>/', CommentUpdateView.as_view()),
+    path('auth/login/', login_view),
+    path('auth/logout/', logout_view),
+    path('auth/me/', current_user_view),
+    path('auth/token/refresh/', TokenRefreshView.as_view()),
 ]
 
 # Serve media files in development

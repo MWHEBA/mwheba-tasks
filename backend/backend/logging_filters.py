@@ -67,16 +67,6 @@ class SensitiveDataFilter(logging.Filter):
         """
         patterns = []
         
-        # Pattern 1: Key-value pairs with sensitive keys (JSON, dict, query params)
-        # Matches: "password": "value", 'password': 'value', password=value, password: value
-        for key in self.SENSITIVE_KEYS:
-            # JSON/dict format: "key": "value" or 'key': 'value'
-            pattern = rf'''(['"]?{key}['"]?\s*[:=]\s*)(['"][^'"]*['"]|[^\s,}}]+)'''
-            patterns.append((
-                re.compile(pattern, re.IGNORECASE),
-                r'\1[REDACTED]'
-            ))
-        
         # Pattern 2: JWT tokens (three base64 segments separated by dots)
         # Must come before Authorization header pattern to catch JWT tokens first
         # Matches: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
@@ -116,6 +106,17 @@ class SensitiveDataFilter(logging.Filter):
             re.compile(r'\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b'),
             '[REDACTED_CARD]'
         ))
+        
+        # Pattern 1: Key-value pairs with sensitive keys (JSON, dict, query params)
+        # Matches: "password": "value", 'password': 'value', password=value, password: value
+        # Moved after Authorization and specific token regexes to avoid partial key matching (like redacting "Bearer" and leaving the token)
+        for key in self.SENSITIVE_KEYS:
+            # JSON/dict format: "key": "value" or 'key': 'value'
+            pattern = rf'''(['"]?{key}['"]?\s*[:=]\s*)(['"][^'"]*['"]|[^\s,}}]+)'''
+            patterns.append((
+                re.compile(pattern, re.IGNORECASE),
+                r'\1[REDACTED]'
+            ))
         
         # Pattern 7: Database connection strings
         # Matches: mysql://user:pass@host, postgresql://user:pass@host

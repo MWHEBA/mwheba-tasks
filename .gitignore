@@ -126,3 +126,7 @@ backend/.idea/
 .DS_Store
 Thumbs.db
 backend/scripts/deploy_config.env
+
+# Deployment and Secrets
+id_rsa
+deploy.py

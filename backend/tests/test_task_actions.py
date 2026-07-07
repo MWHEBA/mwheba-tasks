@@ -63,7 +63,7 @@ class TestCustomActions(TestCase):
     
     def test_add_activity_success(self):
         """Test adding an activity log entry to a task"""
-        url = f'/tasks/{self.test_task.id}/add_activity/'
+        url = f'/api/tasks/{self.test_task.id}/add_activity/'
         data = {
             'type': 'CUSTOM_ACTION',
             'description': 'Test activity description',
@@ -90,7 +90,7 @@ class TestCustomActions(TestCase):
             created_at=int(time.time() * 1000)
         )
         
-        url = '/tasks/overdue/'
+        url = '/api/tasks/overdue/'
         response = self.client_api.get(url)
         
         assert response.status_code == http_status.HTTP_200_OK

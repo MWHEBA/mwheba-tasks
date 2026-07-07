@@ -42,7 +42,7 @@ async function refreshAccessToken(): Promise<string> {
     localStorage.removeItem('user');
     
     // Redirect to login page
-    window.location.href = '/login';
+    window.location.hash = '#/login';
     
     throw new Error('Session expired. Please login again.');
   }

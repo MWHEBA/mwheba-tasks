@@ -421,15 +421,109 @@ export const Settings: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-            <h4 className="font-bold mb-2"><i className="fa-solid fa-circle-info me-2"></i>معلومة هامة</h4>
-            <p>
-                  لتفعيل استلام الرسائل على أي رقم جديد، يجب إرسال الرسالة التالية من الرقم نفسه إلى البوت (+34 644 10 55 84):
-                  <br />
-                  <code className="bg-white px-2 py-0.5 rounded border border-blue-200 mt-1 inline-block font-mono text-xs select-all">
+          <div 
+            className="mt-8 border rounded-lg p-5 text-sm"
+            style={{ 
+              backgroundColor: 'var(--bg-sky-subtle)', 
+              borderColor: 'var(--border-sky-subtle)', 
+              color: 'var(--color-dark)' 
+            }}
+          >
+            <h4 className="font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--color-sky-dark)' }}>
+              <i className="fa-solid fa-circle-info"></i>
+              <span>ملاحظات هامة لتشغيل إشعارات الواتساب</span>
+            </h4>
+            <ul className="space-y-3 list-none p-0 m-0">
+              <li className="flex gap-2">
+                <span className="font-bold" style={{ color: 'var(--color-sky)' }}>•</span>
+                <div>
+                  <strong>خطوة التفعيل الإلزامية:</strong> لتفعيل استقبال الرسائل على أي رقم جديد، يجب أولاً إرسال الرسالة التالية من الرقم نفسه إلى البوت على واتساب:
+                  <div className="mt-1">
+                    <code 
+                      className="px-2 py-0.5 rounded border font-mono text-xs select-all"
+                      style={{ 
+                        backgroundColor: 'var(--bg-white)', 
+                        borderColor: 'var(--border-medium)', 
+                        color: 'var(--text-primary)' 
+                      }}
+                    >
                       I allow callmebot to send me messages
-                  </code>
-            </p>
+                    </code>
+                  </div>
+                </div>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold" style={{ color: 'var(--color-sky)' }}>•</span>
+                <div>
+                  <strong>رقم البوت النشط:</strong> أرسل رسالة التفعيل إلى أحد الأرقام التالية للبوت: 
+                  <code 
+                    className="mx-1 px-1 py-0.5 rounded border font-mono text-xs"
+                    style={{ 
+                      backgroundColor: 'var(--bg-white)', 
+                      borderColor: 'var(--border-medium)', 
+                      color: 'var(--text-primary)' 
+                    }}
+                  >
+                    +34 644 10 55 84
+                  </code> 
+                  أو 
+                  <code 
+                    className="mx-1 px-1 py-0.5 rounded border font-mono text-xs"
+                    style={{ 
+                      backgroundColor: 'var(--bg-white)', 
+                      borderColor: 'var(--border-medium)', 
+                      color: 'var(--text-primary)' 
+                    }}
+                  >
+                    +34 621 33 17 09
+                  </code>. 
+                  (إذا لم يستجب البوت، يرجى مراجعة الموقع الرسمي 
+                  <a 
+                    href="https://www.callmebot.com/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="underline hover:opacity-80 mx-1" 
+                    style={{ color: 'var(--color-sky)' }}
+                  >
+                    CallMeBot
+                  </a> 
+                  لمعرفة الرقم النشط حالياً).
+                </div>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold" style={{ color: 'var(--color-sky)' }}>•</span>
+                <div>
+                  <strong>صيغة رقم الهاتف:</strong> عند إضافة رقم جديد، يجب كتابته بالصيغة الدولية الكاملة **بدون** علامة 
+                  <code 
+                    className="font-mono mx-1 px-1"
+                    style={{ 
+                      backgroundColor: 'var(--bg-white)', 
+                      borderColor: 'var(--border-medium)', 
+                      color: 'var(--text-primary)' 
+                    }}
+                  >
+                    +
+                  </code> 
+                  أو أصفار في البداية (مثال لمصر: 
+                  <code 
+                    className="font-semibold mx-1 px-1"
+                    style={{ 
+                      backgroundColor: 'var(--bg-white)', 
+                      borderColor: 'var(--border-medium)', 
+                      color: 'var(--text-primary)' 
+                    }}
+                  >
+                    201229609292
+                  </code>).
+                </div>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold" style={{ color: 'var(--color-sky)' }}>•</span>
+                <div>
+                  <strong>زر تجربة الإرسال:</strong> يقوم بإرسال الطلب إلى الـ API، ولكن بسبب قيود المتصفح (CORS)، قد يظهر لك نجاح الإرسال باللون الأخضر حتى لو كانت البيانات غير صحيحة ولم تصلك الرسالة فعلياً. إذا واجهت مشكلة، يرجى نسخ رابط التجربة وفتحه في المتصفح مباشرة لرؤية رسالة الخطأ التفصيلية.
+                </div>
+              </li>
+            </ul>
           </div>
         </>
       )}

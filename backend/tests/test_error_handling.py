@@ -10,8 +10,12 @@ from rest_framework.response import Response
 from backend.utils import custom_exception_handler, sanitize_error_message, get_safe_error_message
 
 
+from rest_framework.permissions import AllowAny
+
+
 class TestView(APIView):
     """Test view for exception handler testing"""
+    permission_classes = [AllowAny]
     
     def get(self, request):
         error_type = request.query_params.get('error_type')
